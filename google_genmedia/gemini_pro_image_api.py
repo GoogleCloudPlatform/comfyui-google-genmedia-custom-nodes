@@ -77,6 +77,7 @@ class GeminiProImageAPI(VertexAIClient):
         image3: Optional[torch.Tensor] = None,
         image4: Optional[torch.Tensor] = None,
         image5: Optional[torch.Tensor] = None,
+        image6: Optional[torch.Tensor] = None,
     ) -> List[Image.Image]:
         """Generates an image using the Gemini Pro Image model.
 
@@ -99,7 +100,8 @@ class GeminiProImageAPI(VertexAIClient):
             image2: An optional second input image tensor. Defaults to None.
             image3: An optional third input image tensor. Defaults to None.
             image4: An optional fourth input image tensor. Defaults to None.
-            image5: An optional fourth input image tensor. Defaults to None.
+            image5: An optional fifth input image tensor. Defaults to None.
+            image6: An optional fifth input image tensor. Defaults to None.
 
         Returns:
             A list of generated PIL images.
@@ -160,7 +162,9 @@ class GeminiProImageAPI(VertexAIClient):
 
         contents = [types.Part.from_text(text=prompt)]
 
-        for i, image_tensor in enumerate([image1, image2, image3, image4, image5]):
+        for i, image_tensor in enumerate(
+            [image1, image2, image3, image4, image5, image6]
+        ):
             if image_tensor is not None:
                 for j in range(image_tensor.shape[0]):
                     single_image = image_tensor[j].unsqueeze(0)

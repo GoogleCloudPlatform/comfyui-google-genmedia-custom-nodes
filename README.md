@@ -630,11 +630,12 @@ This node integrates the Gemini 3 Pro Image model, designed for high-speed image
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| **image1** | `IMAGE` | _N/A_ | Primary input image tensor for image editing or reference tasks. |
-| **image2** | `IMAGE` | _N/A_ | Secondary input image tensor. |
-| **image3** | `IMAGE` | _N/A_ | Tertiary input image tensor. |
-| **image4** | `IMAGE` | _N/A_ | Quaternary input image tensor. |
-| **image5** | `IMAGE` | _N/A_ | Quinary input image tensor. |
+| **image1** | `IMAGE` | _N/A_ | Primary input image tensor for image editing or reference tasks. (optional) |
+| **image2** | `IMAGE` | _N/A_ | Secondary input image tensor. (optional) |
+| **image3** | `IMAGE` | _N/A_ | Tertiary input image tensor. (optional) |
+| **image4** | `IMAGE` | _N/A_ | Quaternary input image tensor. (optional) |
+| **image5** | `IMAGE` | _N/A_ | Quinary input image tensor. (optional) |
+| **image6** | `IMAGE` | _N/A_ | Senary input image tensor. (optional) |
 | **system_instruction** | `STRING` | `""` | Multiline string. System-level instructions to guide the model's behavior. |
 
 
