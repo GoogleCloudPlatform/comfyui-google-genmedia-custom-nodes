@@ -533,6 +533,21 @@ def generate_video_from_references(
         "resolution": output_resolution,
         "generate_audio": generate_audio if generate_audio is not None else False,
     }
+    if output_gcs_uri:
+        valid_bucket, validation_message = validate_gcs_uri_and_image(
+            output_gcs_uri, False
+        )
+        if valid_bucket:
+            logger.info(validation_message)
+        else:
+            if (
+                "not exist or is inaccessible" in validation_message
+                or "resource not found" in validation_message
+            ):
+                raise APIExecutionError(validation_message)
+            else:
+                raise APIInputError(validation_message)
+        temp_config["output_gcs_uri"] = output_gcs_uri
 
     reference_images = []
 
