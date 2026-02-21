@@ -4,7 +4,7 @@ description = "A suite of experimental custom nodes that allows access to Google
 version = "3.0.0"
 license = {file = "LICENSE"} 
 
-dependencies = ["google-api-core==2.24.2", "google-cloud-aiplatform==1.111.0", "google-cloud-storage==2.19.0", "google-genai==1.46.0", "google-generativeai==0.8.5", "moviepy==2.2.1", "opencv-python-headless==4.11.0.86"]
+dependencies = ["google-api-core==2.24.2", "google-cloud-aiplatform==1.133.0", "google-cloud-storage==2.19.0", "google-genai==1.46.0", "google-generativeai==0.8.5", "moviepy==2.2.1", "opencv-python-headless==4.11.0.86"]
 
 [project.urls]
 Repository = "https://github.com/GoogleCloudPlatform/comfyui-google-genmedia-custom-nodes"
