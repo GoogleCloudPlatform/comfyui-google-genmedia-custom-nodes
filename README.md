@@ -69,6 +69,7 @@ If you want to run ComfyUI on GKE and use these custom nodes, follow the [ComfyU
 2. Now that the custom nodes are installed, set up authentication with Google Cloud. This is needed because the custom nodes will use Vertex AI APIs in the given Google Cloud project and region. Choose one of the following authentication methods:
     - [Authenticate local ComfyUI with Google Cloud user](#authenticate-local-comfyui-with-google-cloud-user)
     - [Authenticate local ComfyUI with Google Cloud Service Accountt](#authenticate-local-comfyui-with-google-cloud-service-account)
+    - [Authenticate with API Key or custom environment via .env](#authenticate-with-api-key-or-custom-environment-via-env)
 
 3. Re-start ComfyUI via ComfyUI manager or manually. Verify there are no failures in the logs and the log says that google-genmedia custom node has been loaded successfully, similar to the following message:
    ```sh
@@ -136,6 +137,23 @@ If you want to run ComfyUI on GKE and use these custom nodes, follow the [ComfyU
   ```sh
   gcloud auth application-default login --impersonate-service-account=${SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam.gserviceaccount.com
   ```
+
+#### Authenticate with API Key or custom environment via .env
+If you prefer not to use general `gcloud auth` or want to explicitly set a single API key, you can configure a `.env` file inside the custom node folder:
+
+1. Navigate to the custom node directory:
+   ```sh
+   cd comfyui-google-genmedia-custom-nodes
+   ```
+2. Copy `.env.example` as `.env`:
+   ```sh
+   cp .env.example .env
+   ```
+3. Open `.env` and configure:
+   - Set **`GEMINI_API_KEY`** for standard API Key authentication.
+   - **OR** set **`GCP_PROJECT_ID`** & **`GCP_REGION`** for explicit Vertex AI targeting.
+
+These parameters will load automatically upon starting ComfyUI nodes.
 
 ## Node features
 
