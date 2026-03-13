@@ -22,7 +22,7 @@ from google import genai
 from . import utils
 from .base import VertexAIClient
 from .constants import (
-    OUTPUT_RESOLUTION,
+    VEO3_OUTPUT_RESOLUTION,
     VEO3_USER_AGENT,
     VEO3_VALID_ASPECT_RATIOS,
     VEO3_VALID_DURATION_SECONDS,
@@ -112,12 +112,16 @@ class Veo3API(VertexAIClient):
             raise APIInputError(
                 f"Veo3 can only generate videos of aspect ratios {VEO3_VALID_ASPECT_RATIOS}. You passed aspect ratio {aspect_ratio}."
             )
-        if output_resolution not in OUTPUT_RESOLUTION:
+        if output_resolution not in VEO3_OUTPUT_RESOLUTION:
             raise APIInputError(
-                f"Veo3 can only generate videos of resolution {OUTPUT_RESOLUTION}. You passed aspect ratio {output_resolution}."
+                f"Veo3 can only generate videos of resolution {VEO3_OUTPUT_RESOLUTION}. You passed aspect ratio {output_resolution}."
             )
 
         model = Veo3Model[model]
+
+        if output_resolution == "4k":
+            if model not in [Veo3Model.VEO_3_1_PREVIEW, Veo3Model.VEO_3_1_FAST_PREVIEW]:
+                raise APIInputError("4K resolution is only supported for Veo 3.1 Preview models.")
 
         return utils.generate_video_from_text(
             client=self.client,
@@ -202,11 +206,15 @@ class Veo3API(VertexAIClient):
             raise APIInputError(
                 f"Veo3 can only generate videos of aspect ratios {VEO3_VALID_ASPECT_RATIOS}. You passed aspect ratio {aspect_ratio}."
             )
-        if output_resolution not in OUTPUT_RESOLUTION:
+        if output_resolution not in VEO3_OUTPUT_RESOLUTION:
             raise APIInputError(
-                f"Veo3 can only generate videos of resolution {OUTPUT_RESOLUTION}. You passed aspect ratio {output_resolution}."
+                f"Veo3 can only generate videos of resolution {VEO3_OUTPUT_RESOLUTION}. You passed aspect ratio {output_resolution}."
             )
         model = Veo3Model[model]
+
+        if output_resolution == "4k":
+            if model not in [Veo3Model.VEO_3_1_PREVIEW, Veo3Model.VEO_3_1_FAST_PREVIEW]:
+                raise APIInputError("4K resolution is only supported for Veo 3.1 Preview models.")
         return utils.generate_video_from_image(
             client=self.client,
             model=model,
@@ -277,6 +285,15 @@ class Veo3API(VertexAIClient):
                 "Image1 is required. At least reference image must be provided."
             )
         model_enum = Veo3Model[model]
+
+        if output_resolution not in VEO3_OUTPUT_RESOLUTION:
+            raise APIInputError(
+                f"Veo3 can only generate videos of resolution {VEO3_OUTPUT_RESOLUTION}. You passed {output_resolution}."
+            )
+
+        if output_resolution == "4k":
+            if model_enum not in [Veo3Model.VEO_3_1_PREVIEW, Veo3Model.VEO_3_1_FAST_PREVIEW]:
+                raise APIInputError("4K resolution is only supported for Veo 3.1 Preview models.")
 
         return utils.generate_video_from_references(
             client=self.client,
@@ -366,9 +383,9 @@ class Veo3API(VertexAIClient):
             raise APIInputError(
                 f"Veo3 can only generate videos of aspect ratios {VEO3_VALID_ASPECT_RATIOS}. You passed aspect ratio {aspect_ratio}."
             )
-        if output_resolution not in OUTPUT_RESOLUTION:
+        if output_resolution not in VEO3_OUTPUT_RESOLUTION:
             raise APIInputError(
-                f"Veo3 can only generate videos of resolution {OUTPUT_RESOLUTION}. You passed aspect ratio {output_resolution}."
+                f"Veo3 can only generate videos of resolution {VEO3_OUTPUT_RESOLUTION}. You passed aspect ratio {output_resolution}."
             )
 
         if last_frame_gcsuri:
@@ -398,6 +415,11 @@ class Veo3API(VertexAIClient):
         else:
             raise APIInputError(f"Unsupported image format: {image_format}")
         model = Veo3Model[model]
+
+        if output_resolution == "4k":
+            if model not in [Veo3Model.VEO_3_1_PREVIEW, Veo3Model.VEO_3_1_FAST_PREVIEW]:
+                raise APIInputError("4K resolution is only supported for Veo 3.1 Preview models.")
+
         return utils.generate_video_from_gcsuri_image(
             client=self.client,
             model=model,

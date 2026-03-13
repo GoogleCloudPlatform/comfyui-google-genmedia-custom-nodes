@@ -636,11 +636,52 @@ class Veo3ReferenceToVideo:
         return (video_paths,)
 
 
+
+class Veo3TextToVideo4KNode(Veo3TextToVideoNode):
+    @classmethod
+    def INPUT_TYPES(cls):
+        types = super().INPUT_TYPES()
+        types["required"]["model"] = ([Veo3Model.VEO_3_1_PREVIEW.name, Veo3Model.VEO_3_1_FAST_PREVIEW.name], {"default": Veo3Model.VEO_3_1_PREVIEW.name})
+        types["required"]["output_resolution"] = (["720p", "1080p", "4k"], {"default": "4k"})
+        return types
+
+
+class Veo3GcsUriImageToVideo4KNode(Veo3GcsUriImageToVideoNode):
+    @classmethod
+    def INPUT_TYPES(cls):
+        types = super().INPUT_TYPES()
+        types["required"]["model"] = ([Veo3Model.VEO_3_1_PREVIEW.name, Veo3Model.VEO_3_1_FAST_PREVIEW.name], {"default": Veo3Model.VEO_3_1_PREVIEW.name})
+        types["required"]["output_resolution"] = (["720p", "1080p", "4k"], {"default": "4k"})
+        return types
+
+
+class Veo3ImageToVideo4KNode(Veo3ImageToVideoNode):
+    @classmethod
+    def INPUT_TYPES(cls):
+        types = super().INPUT_TYPES()
+        types["required"]["model"] = ([Veo3Model.VEO_3_1_PREVIEW.name, Veo3Model.VEO_3_1_FAST_PREVIEW.name], {"default": Veo3Model.VEO_3_1_PREVIEW.name})
+        types["required"]["output_resolution"] = (["720p", "1080p", "4k"], {"default": "4k"})
+        return types
+
+
+class Veo3ReferenceToVideo4KNode(Veo3ReferenceToVideo):
+    @classmethod
+    def INPUT_TYPES(cls):
+        types = super().INPUT_TYPES()
+        types["required"]["model"] = ([Veo3Model.VEO_3_1_PREVIEW.name, Veo3Model.VEO_3_1_FAST_PREVIEW.name], {"default": Veo3Model.VEO_3_1_PREVIEW.name})
+        types["required"]["output_resolution"] = (["720p", "1080p", "4k"], {"default": "4k"})
+        return types
+
+
 NODE_CLASS_MAPPINGS = {
     "Veo3TextToVideoNode": Veo3TextToVideoNode,
     "Veo3GcsUriImageToVideoNode": Veo3GcsUriImageToVideoNode,
     "Veo3ImageToVideoNode": Veo3ImageToVideoNode,
     "Veo3ReferenceToVideo": Veo3ReferenceToVideo,
+    "Veo3TextToVideo4KNode": Veo3TextToVideo4KNode,
+    "Veo3GcsUriImageToVideo4KNode": Veo3GcsUriImageToVideo4KNode,
+    "Veo3ImageToVideo4KNode": Veo3ImageToVideo4KNode,
+    "Veo3ReferenceToVideo4K": Veo3ReferenceToVideo4KNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -648,4 +689,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "Veo3GcsUriImageToVideoNode": "Veo3.1 Image To Video (GcsUriImage)",
     "Veo3ImageToVideoNode": "Veo3.1 Image To Video",
     "Veo3ReferenceToVideo": "Veo3.1 Reference To Video",
+    "Veo3TextToVideo4KNode": "Veo3.1 Text To Video (4K)",
+    "Veo3GcsUriImageToVideo4KNode": "Veo3.1 Image To Video (4K, GcsUriImage)",
+    "Veo3ImageToVideo4KNode": "Veo3.1 Image To Video (4K)",
+    "Veo3ReferenceToVideo4K": "Veo3.1 Reference To Video (4K)",
 }

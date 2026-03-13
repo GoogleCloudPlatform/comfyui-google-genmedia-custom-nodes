@@ -14,11 +14,36 @@
 
 # This is a preview version of Google GenAI custom nodes
 
+import os
 import requests
 
 from .logger import get_node_logger
 
 logger = get_node_logger(__name__)
+
+
+def load_dotenv():
+    # Load .env file from the root folder of the custom node
+    # Assuming this file is in google_genmedia/config.py
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.dirname(current_dir)
+    dotenv_path = os.path.join(root_dir, ".env")
+
+    if os.path.exists(dotenv_path):
+        logger.info(f"Loading environment variables from {dotenv_path}")
+        with open(dotenv_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    if "=" in line:
+                        key, value = line.split("=", 1)
+                        os.environ[key.strip()] = value.strip().strip('"').strip("'")
+    else:
+        logger.info(f"No .env file found at {dotenv_path}")
+
+
+# Run load_dotenv automatically on module import
+load_dotenv()
 
 
 # Fetch GCP project ID and zone required to authenticate with Vertex AI APIs

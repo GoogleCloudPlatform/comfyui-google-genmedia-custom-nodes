@@ -14,6 +14,7 @@
 
 # This is a preview version of Google GenAI custom nodes
 
+import os
 from typing import Optional
 
 from google import genai
@@ -27,7 +28,7 @@ logger = get_node_logger(__name__)
 
 class VertexAIClient:
     """
-    A base class for initializing Vertex AI clients.
+    A base class for initializing Vertex AI clients or API Key clients.
     """
 
     def __init__(
@@ -37,7 +38,7 @@ class VertexAIClient:
         user_agent: Optional[str] = None,
     ):
         """
-        Initializes the Vertex AI client.
+        Initializes the client.
 
         Args:
             gcp_project_id: The GCP project ID. If provided, overrides metadata lookup.
@@ -45,32 +46,54 @@ class VertexAIClient:
             user_agent: The user agent string for the client.
 
         Raises:
-            ConfigurationError: If GCP Project or region cannot be determined.
+            ConfigurationError: If configuration fails.
         """
-        self.project_id = gcp_project_id or get_gcp_metadata("project/project-id")
+        api_key = os.environ.get("GEMINI_API_KEY")
+
+        if api_key:
+            logger.info("Initializing genai.Client with API Key authentication.")
+            if user_agent:
+                http_options = genai.types.HttpOptions(headers={"user-agent": user_agent})
+            else:
+                http_options = None
+            try:
+                self.client = genai.Client(
+                    api_key=api_key,
+                    http_options=http_options,
+                )
+            except Exception as e:
+                raise ConfigurationError(
+                    f"Failed to initialize genai.Client with API Key: {e}"
+                )
+            return  # Skip Vertex AI setup if API Key is set
+
+        # Fallback to Vertex AI
+        logger.info("Initializing genai.Client for Vertex AI.")
+        self.project_id = gcp_project_id or os.environ.get("GCP_PROJECT_ID") or get_gcp_metadata("project/project-id")
+        
         if gcp_region:
             self.region = gcp_region
         else:
-            zone_metadata = get_gcp_metadata("instance/zone")
-            if zone_metadata:
-                try:
-                    zone_name = zone_metadata.split("/")[-1]
-                    self.region = "-".join(zone_name.split("-")[:-1])
-                except Exception as e:
-                    logger.error(
-                        f"Failed to parse region from zone metadata '{zone_metadata}': {e}"
-                    )
-                    self.region = None
-            else:
-                self.region = None
+            self.region = os.environ.get("GCP_REGION")
+            if not self.region:
+                zone_metadata = get_gcp_metadata("instance/zone")
+                if zone_metadata:
+                    try:
+                        zone_name = zone_metadata.split("/")[-1]
+                        self.region = "-".join(zone_name.split("-")[:-1])
+                    except Exception as e:
+                        logger.error(
+                            f"Failed to parse region from zone metadata '{zone_metadata}': {e}"
+                        )
+                        self.region = None
 
         if not self.project_id:
             raise ConfigurationError(
-                "GCP Project is required and could not be determined."
+                "GCP Project is required and could not be determined (check .env or GCP metadata)."
             )
         if not self.region:
             raise ConfigurationError(
-                "GCP region is required and could not be determined."
+                "GCP region is required and could not be determined (check .env or GCP metadata)."
             )
 
         logger.info(f"Project is {self.project_id}, region is {self.region}")

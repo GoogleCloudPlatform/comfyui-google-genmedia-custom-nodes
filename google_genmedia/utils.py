@@ -286,7 +286,7 @@ def generate_video_from_gcsuri_image(
         temp_config["output_gcs_uri"] = output_gcs_uri
 
     if re.search(
-        r"veo-3\.0",
+        r"veo-3\.",
         model.value if isinstance(model, object) and hasattr(model, "value") else model,
     ):
         if generate_audio:
@@ -437,7 +437,7 @@ def generate_video_from_image(
         temp_config["output_gcs_uri"] = output_gcs_uri
 
     if re.search(
-        r"veo-3\.0",
+        r"veo-3\.",
         model.value if isinstance(model, object) and hasattr(model, "value") else model,
     ):
         if generate_audio:
@@ -664,7 +664,7 @@ def generate_video_from_text(
         temp_config["output_gcs_uri"] = output_gcs_uri
 
     if re.search(
-        r"veo-3\.0",
+        r"veo-3\.",
         model.value if isinstance(model, object) and hasattr(model, "value") else model,
     ):
         if generate_audio:
