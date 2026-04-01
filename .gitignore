@@ -1,1 +1,13 @@
-\n# Internal Gemini CLI tracking files\nGEMINI.md\nPLAN.md\nPLAN-raw-session-chat.md\nGenMedia_ComfyUI_Enhancement_Plan.md\ngemini_cli_development_guide.md
+
+# Internal Gemini CLI tracking files
+GEMINI.md
+PLAN.md
+PLAN-raw-session-chat.md
+GenMedia_ComfyUI_Enhancement_Plan.md
+gemini_cli_development_guide.md
+feat-api-key-sprt-30-03-complete-chat.md
+rca-fix.md
+
+# Python caches
+__pycache__/
+google_genmedia/__pycache__/

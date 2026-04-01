@@ -778,7 +778,7 @@ def extend_video(
     config = GenerateVideosConfig(**temp_config)
     logger.info(f"Config for video extension: {config}")
 
-    input_video = types.Video(uri=input_video_gcs_uri)
+    input_video = types.Video(uri=input_video_gcs_uri, mime_type="video/mp4")
 
     logger.info("Sending request to Veo API for video extension...")
     operation = client.models.generate_videos(

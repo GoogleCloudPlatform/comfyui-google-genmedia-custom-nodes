@@ -104,9 +104,7 @@ NODE_CLASS_MAPPINGS = {}
 NODE_DISPLAY_NAME_MAPPINGS = {}
 
 node_modules = [
-    gemini_flash_image_node,
     gemini_nodes,
-    gemini_pro_image_node,
     helper_nodes,
     imagen3_nodes,
     imagen4_nodes,

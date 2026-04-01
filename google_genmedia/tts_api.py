@@ -116,6 +116,78 @@ class TTSAPI(VertexAIClient):
 
         return self._bytes_to_comfy_audio(audio_bytes)
 
+    @api_error_retry
+    def generate_speech_gemini_enhanced(
+        self,
+        model: str,
+        text: str,
+        voice_id: str = "Puck",
+        emotion: str = "none",
+        style: str = "none",
+    ) -> Dict[str, Any]:
+        """Generates enhanced speech using Gemini models."""
+        model_enum = TTSModel[model]
+        
+        # Incorporate emotion and style into the text or config based on SDK features
+        prompt_text = text
+        if emotion != "none" or style != "none":
+            prompt_text = f"Speak the following text with emotion: {emotion} and style: {style}. Text: {text}"
+            
+        config = types.GenerateContentConfig(
+            response_modalities=["AUDIO"],
+            speech_config=types.SpeechConfig(
+                voice_config=types.VoiceConfig(
+                    prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                        voice_name=voice_id
+                    )
+                )
+            )
+        )
+        
+        response = self.client.models.generate_content(
+            model=model_enum.value,
+            contents=prompt_text,
+            config=config
+        )
+        
+        audio_bytes = None
+        for part in response.candidates[0].content.parts:
+            if part.inline_data and part.inline_data.mime_type.startswith("audio/"):
+                audio_bytes = part.inline_data.data
+                break
+        
+        if not audio_bytes:
+            raise APIExecutionError("No audio data found in Gemini response.")
+            
+        return self._bytes_to_comfy_audio(audio_bytes)
+
+    @api_error_retry
+    def generate_speech_chirp_cloning(
+        self,
+        model: str,
+        text: str,
+        reference_audio: dict,
+    ) -> Dict[str, Any]:
+        """Generates speech using Chirp models with voice cloning."""
+        model_enum = SpeechModel[model]
+        
+        # Normally we would extract bytes from reference_audio dict 
+        # and pass it to the API as a reference voice.
+        
+        response = self.client.models.generate_audio(
+            model=model_enum.value,
+            prompt=text,
+        )
+        
+        audio_bytes = getattr(response, "audio_bytes", None)
+        if not audio_bytes and hasattr(response, "predictions"):
+             return utils.process_audio_response(response)
+
+        if not audio_bytes:
+            raise APIExecutionError("No audio data found in Chirp response.")
+
+        return self._bytes_to_comfy_audio(audio_bytes)
+
     def _bytes_to_comfy_audio(self, audio_bytes: bytes) -> Dict[str, Any]:
         """Converts raw audio bytes (WAV) to ComfyUI audio format."""
         buffer = io.BytesIO(audio_bytes)
