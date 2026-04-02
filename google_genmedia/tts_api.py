@@ -12,20 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is a preview version of TTS custom nodes
-
-import base64
 import io
+import os
 import wave
 from typing import Any, Dict, Optional
 
 import numpy as np
 import torch
-from google.genai import types
 
-from . import utils
-from .base import VertexAIClient
-from .constants import TTS_USER_AGENT, SpeechModel, TTSModel
+from .config import get_gcp_metadata
+from .constants import TTSModel
 from .custom_exceptions import APIExecutionError, ConfigurationError
 from .logger import get_node_logger
 from .retry import api_error_retry
@@ -33,9 +29,19 @@ from .retry import api_error_retry
 logger = get_node_logger(__name__)
 
 
-class TTSAPI(VertexAIClient):
+class TTSAPI:
     """
-    A class to interact with Google's TTS and Speech models.
+    Interacts with Google Cloud Text-to-Speech API.
+
+    Supports:
+      - Gemini TTS models (gemini-2.5-flash-tts, gemini-2.5-pro-tts, etc.)
+        via VoiceSelectionParams.model_name
+      - Chirp 3 HD voices (en-US-Chirp3-HD-*) via VoiceSelectionParams.name
+
+    Authentication priority:
+      1. api_key parameter (node input)
+      2. GEMINI_API_KEY environment variable (.env)
+      3. GCP project + ADC (Vertex AI / Application Default Credentials)
     """
 
     def __init__(
@@ -44,152 +50,199 @@ class TTSAPI(VertexAIClient):
         region: Optional[str] = None,
         api_key: Optional[str] = None,
     ):
-        super().__init__(
-            gcp_project_id=project_id,
-            gcp_region=region,
-            user_agent=TTS_USER_AGENT,
-            api_key=api_key,
+        try:
+            from google.cloud import texttospeech
+            from google.api_core.client_options import ClientOptions
+        except ImportError as e:
+            raise ConfigurationError(
+                "google-cloud-texttospeech is required. "
+                "Run: pip install google-cloud-texttospeech"
+            ) from e
+
+        self._tts = texttospeech
+        effective_api_key = api_key or os.environ.get("GEMINI_API_KEY")
+
+        if effective_api_key:
+            logger.info("Initializing Cloud TTS client with API Key.")
+            try:
+                self.client = texttospeech.TextToSpeechClient(
+                    client_options=ClientOptions(api_key=effective_api_key)
+                )
+            except Exception as e:
+                raise ConfigurationError(
+                    f"Failed to initialize Cloud TTS client with API Key: {e}"
+                ) from e
+            return
+
+        # Fallback: Vertex AI / ADC
+        self.project_id = (
+            project_id
+            or os.environ.get("GCP_PROJECT_ID")
+            or get_gcp_metadata("project/project-id")
         )
+        self.region = region or os.environ.get("GCP_REGION")
+        if not self.region:
+            zone_metadata = get_gcp_metadata("instance/zone")
+            if zone_metadata:
+                try:
+                    zone_name = zone_metadata.split("/")[-1]
+                    self.region = "-".join(zone_name.split("-")[:-1])
+                except Exception:
+                    self.region = "us-central1"
+            else:
+                self.region = "us-central1"
+
+        if not self.project_id:
+            raise ConfigurationError(
+                "GCP Project ID is required. Set GCP_PROJECT_ID in .env or provide an api_key."
+            )
+
+        logger.info(
+            f"Initializing Cloud TTS client for Vertex AI "
+            f"(project={self.project_id}, region={self.region})."
+        )
+        try:
+            api_endpoint = f"{self.region}-texttospeech.googleapis.com"
+            self.client = texttospeech.TextToSpeechClient(
+                client_options=ClientOptions(
+                    api_endpoint=api_endpoint,
+                    quota_project_id=self.project_id,
+                )
+            )
+        except Exception as e:
+            raise ConfigurationError(
+                f"Failed to initialize Cloud TTS Vertex AI client: {e}"
+            ) from e
+
+    # ------------------------------------------------------------------
+    # Gemini TTS  (gemini-2.5-flash-tts / gemini-2.5-pro-tts)
+    # https://cloud.google.com/text-to-speech/docs/gemini-tts
+    # ------------------------------------------------------------------
 
     @api_error_retry
     def generate_speech_gemini(
         self,
         model: str,
         text: str,
-        voice_id: str = "Puck", # Gemini 2.0 default voice if applicable
+        voice_name: str = "Kore",
+        language_code: str = "en-US",
+        prompt: str = "",
     ) -> Dict[str, Any]:
-        """Generates speech using Gemini 2.0+ models."""
-        model_enum = TTSModel[model]
-        
-        # Using generate_content with response_modalities=['AUDIO']
-        config = types.GenerateContentConfig(
-            response_modalities=["AUDIO"],
-            speech_config=types.SpeechConfig(
-                voice_config=types.VoiceConfig(
-                    prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                        voice_name=voice_id
-                    )
-                )
-            )
-        )
-        
-        response = self.client.models.generate_content(
-            model=model_enum.value,
-            contents=text,
-            config=config
-        )
-        
-        audio_bytes = None
-        for part in response.candidates[0].content.parts:
-            if part.inline_data and part.inline_data.mime_type.startswith("audio/"):
-                audio_bytes = part.inline_data.data
-                break
-        
-        if not audio_bytes:
-            raise APIExecutionError("No audio data found in Gemini response.")
-            
-        return self._bytes_to_comfy_audio(audio_bytes)
+        """
+        Generates speech using a Gemini TTS model.
 
-    @api_error_retry
-    def generate_speech_chirp(
-        self,
-        model: str,
-        text: str,
-    ) -> Dict[str, Any]:
-        """Generates speech using Chirp models."""
-        model_enum = SpeechModel[model]
-        
-        # For Chirp, we use generate_audio
-        response = self.client.models.generate_audio(
-            model=model_enum.value,
-            prompt=text,
+        Args:
+            model: TTSModel enum key (e.g. "GEMINI_TTS_FLASH").
+            text: The text to synthesize (≤4,000 bytes).
+            voice_name: Bare voice name, e.g. "Kore", "Puck".
+            language_code: BCP-47 language tag, e.g. "en-US".
+            prompt: Optional style/delivery prompt (≤4,000 bytes).
+                    Supports markup tags like [sigh], [whispering], etc.
+        """
+        tts = self._tts
+        model_id = TTSModel[model].value
+
+        if prompt:
+            synthesis_input = tts.SynthesisInput(text=text, prompt=prompt)
+        else:
+            synthesis_input = tts.SynthesisInput(text=text)
+
+        voice = tts.VoiceSelectionParams(
+            language_code=language_code,
+            name=voice_name,
+            model_name=model_id,
         )
-        
-        # Chirp response usually has audio_bytes directly or in a prediction
-        audio_bytes = getattr(response, "audio_bytes", None)
-        if not audio_bytes and hasattr(response, "predictions"):
-             # Fallback to Vertex AI style if using Vertex
-             return utils.process_audio_response(response)
 
-        if not audio_bytes:
-            raise APIExecutionError("No audio data found in Chirp response.")
+        audio_config = tts.AudioConfig(
+            audio_encoding=tts.AudioEncoding.LINEAR16
+        )
 
-        return self._bytes_to_comfy_audio(audio_bytes)
+        response = self.client.synthesize_speech(
+            input=synthesis_input,
+            voice=voice,
+            audio_config=audio_config,
+        )
+
+        return self._bytes_to_comfy_audio(response.audio_content)
 
     @api_error_retry
     def generate_speech_gemini_enhanced(
         self,
         model: str,
         text: str,
-        voice_id: str = "Puck",
-        emotion: str = "none",
-        style: str = "none",
+        voice_name: str = "Kore",
+        language_code: str = "en-US",
+        style_prompt: str = "",
     ) -> Dict[str, Any]:
-        """Generates enhanced speech using Gemini models."""
-        model_enum = TTSModel[model]
-        
-        # Incorporate emotion and style into the text or config based on SDK features
-        prompt_text = text
-        if emotion != "none" or style != "none":
-            prompt_text = f"Speak the following text with emotion: {emotion} and style: {style}. Text: {text}"
-            
-        config = types.GenerateContentConfig(
-            response_modalities=["AUDIO"],
-            speech_config=types.SpeechConfig(
-                voice_config=types.VoiceConfig(
-                    prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                        voice_name=voice_id
-                    )
-                )
-            )
+        """
+        Generates styled speech using Gemini TTS.
+
+        The style_prompt field maps to the Cloud TTS `prompt` field and
+        supports natural language style instructions as well as markup tags
+        such as [whispering], [shouting], [sarcasm], [long pause], etc.
+        """
+        return self.generate_speech_gemini(
+            model=model,
+            text=text,
+            voice_name=voice_name,
+            language_code=language_code,
+            prompt=style_prompt,
         )
-        
-        response = self.client.models.generate_content(
-            model=model_enum.value,
-            contents=prompt_text,
-            config=config
-        )
-        
-        audio_bytes = None
-        for part in response.candidates[0].content.parts:
-            if part.inline_data and part.inline_data.mime_type.startswith("audio/"):
-                audio_bytes = part.inline_data.data
-                break
-        
-        if not audio_bytes:
-            raise APIExecutionError("No audio data found in Gemini response.")
-            
-        return self._bytes_to_comfy_audio(audio_bytes)
+
+    # ------------------------------------------------------------------
+    # Chirp 3 HD
+    # https://cloud.google.com/text-to-speech/docs/chirp3-hd
+    # ------------------------------------------------------------------
 
     @api_error_retry
-    def generate_speech_chirp_cloning(
+    def generate_speech_chirp3_hd(
         self,
-        model: str,
         text: str,
-        reference_audio: dict,
+        voice_name: str = "en-US-Chirp3-HD-Charon",
+        language_code: str = "en-US",
+        speaking_rate: float = 1.0,
     ) -> Dict[str, Any]:
-        """Generates speech using Chirp models with voice cloning."""
-        model_enum = SpeechModel[model]
-        
-        # Normally we would extract bytes from reference_audio dict 
-        # and pass it to the API as a reference voice.
-        
-        response = self.client.models.generate_audio(
-            model=model_enum.value,
-            prompt=text,
+        """
+        Generates speech using a Chirp 3 HD voice.
+
+        Args:
+            text: The text to synthesize. Supports [pause short/long] markup.
+            voice_name: Full Chirp 3 HD voice name, e.g. "en-US-Chirp3-HD-Charon".
+            language_code: BCP-47 language tag matching the voice locale.
+            speaking_rate: Playback speed multiplier (0.25–2.0). Default 1.0.
+        """
+        tts = self._tts
+
+        synthesis_input = tts.SynthesisInput(text=text)
+
+        voice = tts.VoiceSelectionParams(
+            language_code=language_code,
+            name=voice_name,
         )
-        
-        audio_bytes = getattr(response, "audio_bytes", None)
-        if not audio_bytes and hasattr(response, "predictions"):
-             return utils.process_audio_response(response)
 
-        if not audio_bytes:
-            raise APIExecutionError("No audio data found in Chirp response.")
+        audio_config = tts.AudioConfig(
+            audio_encoding=tts.AudioEncoding.LINEAR16,
+            speaking_rate=speaking_rate,
+        )
 
-        return self._bytes_to_comfy_audio(audio_bytes)
+        response = self.client.synthesize_speech(
+            input=synthesis_input,
+            voice=voice,
+            audio_config=audio_config,
+        )
+
+        return self._bytes_to_comfy_audio(response.audio_content)
+
+    # ------------------------------------------------------------------
+    # Audio conversion helpers
+    # ------------------------------------------------------------------
 
     def _bytes_to_comfy_audio(self, audio_bytes: bytes) -> Dict[str, Any]:
-        """Converts raw audio bytes (WAV) to ComfyUI audio format."""
+        """
+        Converts WAV audio bytes (LINEAR16 from Cloud TTS) to ComfyUI audio format.
+
+        Cloud TTS LINEAR16 responses include a WAV header, so wave.open works directly.
+        """
         buffer = io.BytesIO(audio_bytes)
         try:
             with wave.open(buffer, "rb") as wf:
@@ -212,8 +265,13 @@ class TTSAPI(VertexAIClient):
                 else:
                     waveform_np = (waveform_np.astype(np.float32) - 128.0) / 128.0
 
-                waveform_tensor = torch.from_numpy(waveform_np).reshape(-1, n_channels).transpose(0, 1)
+                # Shape: [batch=1, channels, samples]
+                waveform_tensor = (
+                    torch.from_numpy(waveform_np.copy())
+                    .reshape(-1, n_channels)
+                    .transpose(0, 1)
+                )
                 return {"waveform": waveform_tensor.unsqueeze(0), "sample_rate": sample_rate}
+
         except wave.Error as e:
-             # If it's not a WAV, we might need ffmpeg, but for now we assume WAV as per other nodes
-             raise APIExecutionError(f"Failed to process audio bytes: {e}")
+            raise APIExecutionError(f"Failed to decode audio response: {e}") from e

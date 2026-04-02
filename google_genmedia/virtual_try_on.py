@@ -14,18 +14,27 @@
 
 # This is a preview version of Virtual-try-on custom nodes
 
-from typing import Any, Dict, List, Optional, Tuple
+import base64
+from typing import Any, Dict, Optional, Tuple
 
-import numpy as np
 import torch
-from google.api_core.gapic_v1.client_info import ClientInfo
-from google.cloud import aiplatform
 from google.genai import types
-from PIL import Image
+
+# RecontextImageSource and ProductImage were added in google-genai >= 1.14.0.
+# Accessing via the types module avoids a static-analysis unresolved-import warning
+# while still raising a clear error at load time on older SDK versions.
+try:
+    RecontextImageSource = types.RecontextImageSource
+    ProductImage = types.ProductImage
+except AttributeError as _vto_import_err:
+    raise ImportError(
+        "Virtual Try-On requires google-genai >= 1.14.0. "
+        "Please run: pip install --upgrade google-genai"
+    ) from _vto_import_err
 
 from . import utils
 from .base import VertexAIClient
-from .constants import MAX_SEED, VTO_MODEL, VTO_USER_AGENT
+from .constants import VTO_MODEL, VTO_USER_AGENT
 from .custom_exceptions import APIExecutionError, APIInputError, ConfigurationError
 from .logger import get_node_logger
 from .retry import api_error_retry
@@ -41,37 +50,28 @@ class VirtualTryOn(VertexAIClient):
     def __init__(
         self,
         gcp_project_id: Optional[str] = None,
-        gcp_region: Optional[str] = None,
         api_key: Optional[str] = None,
     ):
         """
-        Initializes the Gemini client.
+        Initializes the VirtualTryOn client.
 
         Args:
             gcp_project_id: The GCP project ID. If provided, overrides metadata lookup.
-            gcp_region: The GCP region. If provided, overrides metadata lookup.
             api_key: The Google GenAI API Key. If provided, prioritizes over environment variable.
 
         Raises:
-            ConfigurationError: If GCP Project or region cannot be determined or client initialization fails.
+            ConfigurationError: If configuration fails or client initialization fails.
         """
-        super().__init__(gcp_project_id, gcp_region, api_key=api_key)
-        try:
-            aiplatform.init(project=self.project_id, location=self.region)
-            self.api_regional_endpoint = f"{self.region}-aiplatform.googleapis.com"
-            self.client_options = {"api_endpoint": self.api_regional_endpoint}
-            self.client_info = ClientInfo(user_agent=VTO_USER_AGENT)
-            self.client = aiplatform.gapic.PredictionServiceClient(
-                client_options=self.client_options, client_info=self.client_info
-            )
-            self.model_endpoint = f"projects/{self.project_id}/locations/{self.region}/publishers/google/models/{VTO_MODEL}"
-            logger.info(
-                f"Prediction client initiated on project : {self.project_id}, location: {self.region}"
-            )
-        except Exception as e:
-            raise ConfigurationError(
-                f"Failed to initialize Prediction client for Vertex AI: {e}"
-            )
+        # VTO requires location="global" for Vertex AI
+        super().__init__(
+            gcp_project_id=gcp_project_id,
+            gcp_region="global",
+            user_agent=VTO_USER_AGENT,
+            api_key=api_key,
+        )
+        logger.info(
+            f"VirtualTryOn client initialized (project: {getattr(self, 'project_id', 'api-key-auth')})"
+        )
 
     @classmethod
     def INPUT_TYPES(cls) -> Dict[str, Dict[str, Any]]:
@@ -85,33 +85,9 @@ class VirtualTryOn(VertexAIClient):
             "required": {
                 "person_image": ("IMAGE",),
                 "product_image": ("IMAGE",),
-                "base_steps": ("INT", {"default": 32, "min": 1, "max": 50}),
-                "person_generation": (
-                    ["ALLOW_ADULT", "DONT_ALLOW"],
-                    {"default": "ALLOW_ADULT"},
-                ),
                 "number_of_images": ("INT", {"default": 1, "min": 1, "max": 4}),
             },
             "optional": {
-                "seed": (
-                    "INT",
-                    {
-                        "default": 0,
-                        "min": 0,
-                        "max": MAX_SEED,
-                        "tooltip": "0 seed let's VTO API handle randomness. Seed works with enhance_prompt disabled",
-                    },
-                ),
-                "add_watermark": ("BOOLEAN", {"default": False}),
-                "safety_filter_level": (
-                    [
-                        "BLOCK_LOW_AND_ABOVE",
-                        "BLOCK_MEDIUM_AND_ABOVE",
-                        "BLOCK_ONLY_HIGH",
-                        "BLOCK_NONE",
-                    ],
-                    {"default": "BLOCK_MEDIUM_AND_ABOVE"},
-                ),
                 "api_key": (
                     "STRING",
                     {
@@ -123,14 +99,7 @@ class VirtualTryOn(VertexAIClient):
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Imagen",
-                    },
-                ),
-                "gcp_region": (
-                    "STRING",
-                    {
-                        "default": "",
-                        "tooltip": "GCP region for Vertex AI API",
+                        "tooltip": "GCP project id where Vertex AI API will be queried",
                     },
                 ),
             },
@@ -143,139 +112,115 @@ class VirtualTryOn(VertexAIClient):
     CATEGORY = "Google AI/Virtual-Try-On"
 
     @api_error_retry
-    def _predict(self, instances: List[Dict], parameters: Dict, model: str) -> Any:
+    def _recontext(
+        self,
+        person_image_bytes: bytes,
+        product_image_bytes: bytes,
+        number_of_images: int,
+        model: str,
+    ) -> Any:
         """
-        Makes a prediction using the Vertex AI PredictionServiceClient.
-
-        This method is decorated with `@api_error_retry` to handle API errors
-        and implement retry logic.
+        Calls the Virtual Try-On API using the genai client.
 
         Args:
-            instances: A list of instances to send to the prediction endpoint.
-            parameters: A dictionary of parameters to send to the prediction endpoint.
-            model: The name of the model, used for logging by the retry decorator.
+            person_image_bytes: Raw PNG bytes of the person image.
+            product_image_bytes: Raw PNG bytes of the product image.
+            number_of_images: Number of images to generate (1–4).
+            model: The model ID to use.
 
         Returns:
-            The prediction response from the API.
+            The recontext_image response from the API.
 
         Raises:
             APIInputError: If input parameters are invalid.
-            APIExecutionError: If the API call fails due to quota, permissions, or server issues.
+            APIExecutionError: If the API call fails.
         """
-        return self.client.predict(
-            endpoint=self.model_endpoint,
-            instances=instances,
-            parameters=parameters,
+        return self.client.models.recontext_image(
+            model=model,
+            source=RecontextImageSource(
+                person_image=types.Image(
+                    image_bytes=person_image_bytes, mime_type="image/png"
+                ),
+                product_images=[
+                    ProductImage(
+                        product_image=types.Image(
+                            image_bytes=product_image_bytes, mime_type="image/png"
+                        )
+                    )
+                ],
+            ),
+            config={"sample_count": number_of_images},
         )
 
     def generate_and_return_image(
         self,
         person_image: torch.Tensor,
         product_image: torch.Tensor,
-        base_steps: int,
-        person_generation: str,
         number_of_images: int,
-        seed: int = 0,
-        add_watermark: bool = False,
-        safety_filter_level: str = "BLOCK_MEDIUM_AND_ABOVE",
         api_key: str = "",
         gcp_project_id: Optional[str] = None,
-        gcp_region: Optional[str] = None,
     ) -> Tuple[torch.Tensor,]:
         """
-        This function iterates through each provided product image, makes an API call to the
-        Virtual Try-On service, and returns the generated images as a concatenated tensor.
+        Generates virtual try-on images via the Google GenAI API.
+
+        Iterates through each provided product image, calls the VTO API with the
+        person image, and returns all generated images as a concatenated tensor.
 
         Args:
             person_image: A PyTorch tensor representing the image of the person.
             product_image: A PyTorch tensor representing the product image(s).
-            base_steps: The number of base steps for image generation.
-            person_generation: A string indicating the safety level for person generation,
-                            e.g., 'ALLOW_ADULT' or 'DONT_ALLOW'.
-            number_of_images: The number of images to generate for each product.
-            seed: The seed for the image generation process. A value of 0 lets the API
-              handle randomness.
-            add_watermark: A boolean indicating whether to add a watermark to the output image.
-            safety_filter_level: The safety filter level for the generated images, with options
-                            like 'BLOCK_LOW_AND_ABOVE', 'BLOCK_MEDIUM_AND_ABOVE', etc.
+            number_of_images: Number of output images to generate (1–4).
             api_key: Google GenAI API Key.
-            gcp_project_id: An optional string for the GCP project ID. If provided, it overrides
-                        the project ID determined from metadata.
-            gcp_region: An optional string for the GCP region. If provided, it overrides the
-                    region determined from metadata.
+            gcp_project_id: Optional GCP project ID override.
 
         Returns:
             A tuple containing a concatenated PyTorch tensor of all generated images.
 
         Raises:
-            RuntimeError: If API configuration fails, or if image generation encounters an API error.
+            RuntimeError: If configuration fails or image generation encounters an error.
         """
         try:
-            # Re-initialize the client if needed
-            init_project_id = gcp_project_id if gcp_project_id else None
-            init_region = gcp_region if gcp_region else None
-            init_api_key = api_key if api_key else None
-            self.__init__(gcp_project_id=init_project_id, gcp_region=init_region, api_key=init_api_key)
+            self.__init__(
+                gcp_project_id=gcp_project_id if gcp_project_id else None,
+                api_key=api_key if api_key else None,
+            )
         except ConfigurationError as e:
             raise RuntimeError(f"Virtual Try-On API Configuration Error: {e}") from e
 
         try:
-            # Validate that the input tensors contain data
             if not (person_image.numel() > 0 and product_image.numel() > 0):
                 raise APIInputError(
                     "Both person_image and product_image must be valid, non-empty images."
                 )
-            seed_for_api = seed if seed != 0 else None
-            if seed_for_api and add_watermark:
-                raise APIInputError(
-                    "Seed is not supported when add_watermark is enabled."
-                )
 
-            person_image_base64 = utils.tensor_to_pil_to_base64(person_image)
+            person_b64 = utils.tensor_to_pil_to_base64(person_image)
+            person_bytes = base64.b64decode(person_b64)
 
             all_generated_tensors = []
 
-            # We will loop through each product image and make an API call with the same personImage and different productImages
             logger.info(
                 f"Beginning batch job for {product_image.shape[0]} product image(s)."
             )
             for i in range(product_image.shape[0]):
                 single_product_tensor = product_image[i : i + 1]
                 logger.info(f"Processing image {i+1} of {product_image.shape[0]}...")
-                product_image_base64 = utils.tensor_to_pil_to_base64(
-                    single_product_tensor
-                )
-                instances = [
-                    {
-                        "personImage": {
-                            "image": {"bytesBase64Encoded": person_image_base64}
-                        },
-                        "productImages": [
-                            {"image": {"bytesBase64Encoded": product_image_base64}}
-                        ],
-                    }
-                ]
-                parameters = {
-                    "sampleCount": number_of_images,
-                    "baseSteps": base_steps,
-                    "safetySetting": safety_filter_level,
-                    "personGeneration": person_generation,
-                    "seed": seed_for_api,
-                    "addWatermark": add_watermark,
-                    "safety_filter_level": safety_filter_level,
-                }
+                product_b64 = utils.tensor_to_pil_to_base64(single_product_tensor)
+                product_bytes = base64.b64decode(product_b64)
+
                 try:
-                    response = self._predict(
-                        instances=instances,
-                        parameters=parameters,
+                    response = self._recontext(
+                        person_image_bytes=person_bytes,
+                        product_image_bytes=product_bytes,
+                        number_of_images=number_of_images,
                         model=VTO_MODEL,
                     )
-                    for prediction in response.predictions:
-                        base64_image_string = prediction["bytesBase64Encoded"]
-                        tensor = utils.base64_to_pil_to_tensor(base64_image_string)
+                    for generated_image in response.generated_images:
+                        img_b64 = base64.b64encode(
+                            generated_image.image.image_bytes
+                        ).decode("utf-8")
+                        tensor = utils.base64_to_pil_to_tensor(img_b64)
                         all_generated_tensors.append(tensor)
                 except (APIExecutionError, APIInputError) as e:
-                    # Catch all exceptions for the Vertex AI Prediction call and re-raise if no results were generated.
                     error_message = (
                         f"Could not generate image for product {i+1}. Error: {e}"
                     )
@@ -288,7 +233,6 @@ class VirtualTryOn(VertexAIClient):
 
                     continue
 
-            # After the loop, check if we got any results at all
             if not all_generated_tensors:
                 raise APIExecutionError(
                     "Image generation failed for all product images in the batch."

@@ -117,10 +117,29 @@ class Veo3Model(str, Enum):
 
 class TTSModel(str, Enum):
     GEMINI_TTS_FLASH = "gemini-2.5-flash-tts"
+    GEMINI_TTS_FLASH_LITE_PREVIEW = "gemini-2.5-flash-lite-preview-tts"
     GEMINI_TTS_PRO = "gemini-2.5-pro-tts"
-    GEMINI_LIVE_FLASH = "gemini-3.1-flash-live"
 
 
-class SpeechModel(str, Enum):
-    CHIRP_2 = "chirp-2-001"
-    CHIRP_3 = "chirp-3-preview"
+# Gemini TTS voices (28 total) — used as bare voice names in VoiceSelectionParams
+GEMINI_TTS_VOICES = [
+    "Zephyr", "Puck", "Charon", "Kore", "Fenrir", "Aoede", "Leda", "Orus",
+    "Perseus", "Schedar", "Gacrux", "Zubenelgenubi", "Pulcherrima", "Achird",
+    "Achernar", "Electra", "Iapetus", "Umbriel", "Algieba", "Despina",
+    "Erinome", "Algenib", "Rasalgethi", "Laomedeia", "Acrab", "Izar",
+    "Vindemiatrix", "Sadachbia",
+]
+
+# Chirp 3 HD voices — full voice name format: {locale}-Chirp3-HD-{name}
+CHIRP3_HD_VOICES = [
+    "en-US-Chirp3-HD-Zephyr", "en-US-Chirp3-HD-Puck", "en-US-Chirp3-HD-Charon",
+    "en-US-Chirp3-HD-Kore", "en-US-Chirp3-HD-Fenrir", "en-US-Chirp3-HD-Aoede",
+    "en-US-Chirp3-HD-Leda", "en-US-Chirp3-HD-Orus", "en-US-Chirp3-HD-Perseus",
+    "en-US-Chirp3-HD-Schedar", "en-US-Chirp3-HD-Gacrux", "en-US-Chirp3-HD-Zubenelgenubi",
+    "en-US-Chirp3-HD-Pulcherrima", "en-US-Chirp3-HD-Achird", "en-US-Chirp3-HD-Achernar",
+    "en-US-Chirp3-HD-Electra", "en-US-Chirp3-HD-Iapetus", "en-US-Chirp3-HD-Umbriel",
+    "en-US-Chirp3-HD-Algieba", "en-US-Chirp3-HD-Despina", "en-US-Chirp3-HD-Erinome",
+    "en-US-Chirp3-HD-Algenib", "en-US-Chirp3-HD-Rasalgethi", "en-US-Chirp3-HD-Laomedeia",
+    "en-US-Chirp3-HD-Acrab", "en-US-Chirp3-HD-Izar", "en-US-Chirp3-HD-Vindemiatrix",
+    "en-US-Chirp3-HD-Sadachbia",
+]
