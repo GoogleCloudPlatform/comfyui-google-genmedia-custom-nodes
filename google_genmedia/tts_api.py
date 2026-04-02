@@ -222,10 +222,10 @@ class TTSAPI:
 
         audio_config = tts.AudioConfig(
             audio_encoding=tts.AudioEncoding.LINEAR16,
-            speaking_rate=speaking_rate,
+            speaking_rate=speaking_rate
         )
 
-        response = self.client.synthesize_speech(
+        response = tts.TextToSpeechClient().synthesize_speech(
             input=synthesis_input,
             voice=voice,
             audio_config=audio_config,

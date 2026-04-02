@@ -85,7 +85,6 @@ class VirtualTryOn(VertexAIClient):
             "required": {
                 "person_image": ("IMAGE",),
                 "product_image": ("IMAGE",),
-                "number_of_images": ("INT", {"default": 1, "min": 1, "max": 4}),
             },
             "optional": {
                 "api_key": (
@@ -116,7 +115,6 @@ class VirtualTryOn(VertexAIClient):
         self,
         person_image_bytes: bytes,
         product_image_bytes: bytes,
-        number_of_images: int,
         model: str,
     ) -> Any:
         """
@@ -125,7 +123,6 @@ class VirtualTryOn(VertexAIClient):
         Args:
             person_image_bytes: Raw PNG bytes of the person image.
             product_image_bytes: Raw PNG bytes of the product image.
-            number_of_images: Number of images to generate (1–4).
             model: The model ID to use.
 
         Returns:
@@ -148,15 +145,13 @@ class VirtualTryOn(VertexAIClient):
                         )
                     )
                 ],
-            ),
-            config={"sample_count": number_of_images},
+            )
         )
 
     def generate_and_return_image(
         self,
         person_image: torch.Tensor,
         product_image: torch.Tensor,
-        number_of_images: int,
         api_key: str = "",
         gcp_project_id: Optional[str] = None,
     ) -> Tuple[torch.Tensor,]:
@@ -169,7 +164,6 @@ class VirtualTryOn(VertexAIClient):
         Args:
             person_image: A PyTorch tensor representing the image of the person.
             product_image: A PyTorch tensor representing the product image(s).
-            number_of_images: Number of output images to generate (1–4).
             api_key: Google GenAI API Key.
             gcp_project_id: Optional GCP project ID override.
 
@@ -211,7 +205,6 @@ class VirtualTryOn(VertexAIClient):
                     response = self._recontext(
                         person_image_bytes=person_bytes,
                         product_image_bytes=product_bytes,
-                        number_of_images=number_of_images,
                         model=VTO_MODEL,
                     )
                     for generated_image in response.generated_images:
