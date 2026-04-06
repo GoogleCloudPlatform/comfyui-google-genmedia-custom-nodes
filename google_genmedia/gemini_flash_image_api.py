@@ -137,21 +137,6 @@ class GeminiFlashImageAPI(VertexAIClient):
                 types.SafetySetting(
                     category="HARM_CATEGORY_HARASSMENT", threshold=harassment_threshold
                 ),
-                types.SafetySetting(
-                    category="HARM_CATEGORY_IMAGE_HATE", threshold=hate_speech_threshold
-                ),
-                types.SafetySetting(
-                    category="HARM_CATEGORY_IMAGE_DANGEROUS_CONTENT",
-                    threshold=dangerous_content_threshold,
-                ),
-                types.SafetySetting(
-                    category="HARM_CATEGORY_IMAGE_HARASSMENT",
-                    threshold=harassment_threshold,
-                ),
-                types.SafetySetting(
-                    category="HARM_CATEGORY_IMAGE_SEXUALLY_EXPLICIT",
-                    threshold=sexually_explicit_threshold,
-                ),
             ],
         )
 

@@ -11,3 +11,4 @@ rca-fix.md
 # Python caches
 __pycache__/
 google_genmedia/__pycache__/
+.local_tests/

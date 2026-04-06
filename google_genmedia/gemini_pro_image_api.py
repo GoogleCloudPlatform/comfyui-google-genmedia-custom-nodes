@@ -84,24 +84,7 @@ class GeminiProImageAPI(VertexAIClient):
                 threshold=sexually_explicit_threshold,
             ),
             types.SafetySetting(
-                category="HARM_CATEGORY_HARASSMENT",
-                threshold=harassment_threshold,
-            ),
-            types.SafetySetting(
-                category="HARM_CATEGORY_IMAGE_HATE",
-                threshold=hate_speech_threshold,
-            ),
-            types.SafetySetting(
-                category="HARM_CATEGORY_IMAGE_DANGEROUS_CONTENT",
-                threshold=dangerous_content_threshold,
-            ),
-            types.SafetySetting(
-                category="HARM_CATEGORY_IMAGE_HARASSMENT",
-                threshold=harassment_threshold,
-            ),
-            types.SafetySetting(
-                category="HARM_CATEGORY_IMAGE_SEXUALLY_EXPLICIT",
-                threshold=sexually_explicit_threshold,
+                category="HARM_CATEGORY_HARASSMENT", threshold=harassment_threshold
             ),
         ]
 
@@ -172,7 +155,6 @@ class GeminiProImageAPI(VertexAIClient):
             image_config=types.ImageConfig(
                 aspect_ratio=aspect_ratio,
                 image_size=image_size,
-                output_mime_type=output_mime_type,
             ),
             system_instruction=system_instruction,
             safety_settings=self._get_safety_settings(
