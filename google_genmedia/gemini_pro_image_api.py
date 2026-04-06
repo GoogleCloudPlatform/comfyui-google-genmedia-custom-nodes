@@ -337,8 +337,3 @@ class GeminiProImageAPI(VertexAIClient):
                 generated_pil_images.append(image)
 
         return generated_pil_images
-e:
-                image = Image.open(BytesIO(part.inline_data.data))
-                generated_pil_images.append(image)
-
-        return generated_pil_images
