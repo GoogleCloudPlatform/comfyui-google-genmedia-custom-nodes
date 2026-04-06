@@ -290,9 +290,20 @@ class GeminiProImageAPI(VertexAIClient):
         model = GeminiProImageModel[model]
         generated_pil_images: List[Image.Image] = []
 
+        if output_mime_type.upper() == "PNG":
+            output_mime_type = "image/png"
+        elif output_mime_type.upper() == "JPEG":
+            output_mime_type = "image/jpeg"
+
         control_config = types.ControlConfig(
             control_type=control_type,
         )
+
+        image_config_kwargs = {
+            "control_config": control_config,
+        }
+        if hasattr(self, "project_id") and self.project_id:
+            image_config_kwargs["output_mime_type"] = output_mime_type
 
         generate_content_config = types.GenerateContentConfig(
             temperature=temperature,
@@ -300,10 +311,7 @@ class GeminiProImageAPI(VertexAIClient):
             top_k=top_k,
             max_output_tokens=GEMINI_3_PRO_IMAGE_MAX_OUTPUT_TOKEN,
             response_modalities=["TEXT", "IMAGE"],
-            image_config=types.ImageConfig(
-                output_mime_type=output_mime_type,
-                control_config=control_config,
-            ),
+            image_config=types.ImageConfig(**image_config_kwargs),
             system_instruction=system_instruction,
             safety_settings=self._get_safety_settings(
                 hate_speech_threshold,
@@ -325,6 +333,11 @@ class GeminiProImageAPI(VertexAIClient):
 
         for part in response.candidates[0].content.parts:
             if part.inline_data is not None:
+                image = Image.open(BytesIO(part.inline_data.data))
+                generated_pil_images.append(image)
+
+        return generated_pil_images
+e:
                 image = Image.open(BytesIO(part.inline_data.data))
                 generated_pil_images.append(image)
 
