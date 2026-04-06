@@ -121,35 +121,23 @@ class Lyria3API(VertexAIClient):
             raise APIExecutionError(f"Lyria 3 image-to-music generation failed: {e}") from e
 
     def _bytes_to_comfy_audio(self, audio_bytes: bytes) -> Dict[str, Any]:
-        """Converts raw audio bytes (WAV) to ComfyUI audio format."""
-        buffer = io.BytesIO(audio_bytes)
+        """Converts raw audio bytes (MP3/WAV) to ComfyUI audio format using torchaudio."""
+        import torchaudio
+        import tempfile
+        import os
+
+        # Write bytes to a temporary file since torchaudio.load is more reliable with file paths
+        # than with BytesIO (especially for compressed formats like MP3 on some backends)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+            tmp_file.write(audio_bytes)
+            tmp_path = tmp_file.name
+
         try:
-            with wave.open(buffer, "rb") as wf:
-                sample_rate = wf.getframerate()
-                n_channels = wf.getnchannels()
-                sampwidth = wf.getsampwidth()
-                n_frames = wf.getnframes()
-                frames = wf.readframes(n_frames)
-
-                if sampwidth == 2:
-                    dtype = np.int16
-                elif sampwidth == 1:
-                    dtype = np.uint8
-                else:
-                    raise APIExecutionError(f"Unsupported sample width: {sampwidth}")
-
-                waveform_np = np.frombuffer(frames, dtype=dtype)
-                if dtype == np.int16:
-                    waveform_np = waveform_np.astype(np.float32) / 32768.0
-                else:
-                    waveform_np = (waveform_np.astype(np.float32) - 128.0) / 128.0
-
-                waveform_tensor = (
-                    torch.from_numpy(waveform_np.copy())
-                    .reshape(-1, n_channels)
-                    .transpose(0, 1)
-                )
-                return {"waveform": waveform_tensor.unsqueeze(0), "sample_rate": sample_rate}
-                
-        except wave.Error as e:
-            raise APIExecutionError(f"Failed to decode audio response: {e}") from e
+            waveform, sample_rate = torchaudio.load(tmp_path)
+            # torchaudio loads as (Channels, Samples). ComfyUI expects (Batch, Channels, Samples)
+            return {"waveform": waveform.unsqueeze(0), "sample_rate": sample_rate}
+        except Exception as e:
+            raise APIExecutionError(f"Failed to decode audio response with torchaudio: {e}") from e
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
