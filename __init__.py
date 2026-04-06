@@ -104,11 +104,14 @@ NODE_CLASS_MAPPINGS = {}
 NODE_DISPLAY_NAME_MAPPINGS = {}
 
 node_modules = [
+    gemini_flash_image_node,
     gemini_nodes,
+    gemini_pro_image_node,
     helper_nodes,
     imagen3_nodes,
     imagen4_nodes,
     lyria2_nodes,
+    lyria3_nodes,
     veo2_nodes,
     veo3_nodes,
     virtual_try_on,

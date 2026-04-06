@@ -121,6 +121,14 @@ class TTSModel(str, Enum):
     GEMINI_TTS_PRO = "gemini-2.5-pro-tts"
 
 
+class Lyria3Model(str, Enum):
+    LYRIA_3_CLIP = "lyria-3-clip-preview"
+    LYRIA_3_PRO = "lyria-3-pro-preview"
+
+
+LYRIA3_USER_AGENT = "cloud-solutions/comfyui-lyria3-custom-node-v1"
+
+
 # Gemini TTS voices (28 total) — used as bare voice names in VoiceSelectionParams
 GEMINI_TTS_VOICES = [
     "Zephyr", "Puck", "Charon", "Kore", "Fenrir", "Aoede", "Leda", "Orus",
