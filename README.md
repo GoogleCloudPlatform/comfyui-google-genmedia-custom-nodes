@@ -7,15 +7,16 @@ This is a preview version of Google GenAI custom nodes for ComfyUI.
 # ComfyUI custom nodes for Google GenMedia
 
 This repository contains ComfyUI custom nodes for the following Google GenMedia models:
-- Gemini
-- Gemini 2.5 Flash Image(Nano Banana 🍌)
-- Gemini 3 Pro Image(Nano Banana Pro 🍌)
-- Imagen3
-- Imagen4
-- Lyria2
-- Veo2
-- Veo3.1
-- Virtual-try-on
+- Gemini (Text & Multimodal)
+- Gemini 2.5 Flash Image (Nano Banana 🍌)
+- Gemini 3 Pro Image (Nano Banana Pro 🍌)
+- Gemini 2.5 / Chirp 3 (Text-to-Speech & Voice Cloning)
+- Imagen 3
+- Imagen 4
+- Lyria 2 & Lyria 3 (Music Generation)
+- Veo 2
+- Veo 3.1 (Includes Video Extension)
+- Virtual Try-On (GA version)
 
 All of these nodes need a Google Cloud project and region as input and uses the Vertex AI APIs to access Google GenMedia models. If you are running ComfyUI on GKE as described in [ComfyUI on GKE](https://github.com/GoogleCloudPlatform/accelerated-platforms/tree/main/platforms/gke/base/use-cases/inference-ref-arch/examples/comfyui) guide, the Vertex AI APIs will be authenticated with [GKE workload identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) and no additional action is required form your end.
 
@@ -575,6 +576,44 @@ Generates videos using multiple reference images to guide the style and content.
 #### Sample
 ![Sample workflow using Veo3 Reference to Video node](/workflow-snapshots/veo3-reference-to-video.png)
 
+---
+
+#### 5. Veo3.1 Extend Video
+
+Category: `Google AI/Veo3.1`
+
+Extends the duration of an existing video up to an additional 30 seconds using the Veo 3.1 API.
+
+#### Required Inputs
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| **model** | `Dropdown` | `VEO_3_1_PREVIEW` | Select the specific Veo 3 model version. |
+| **input_video_gcs_uri** | `STRING` | `""` | The `gs://` URI path to the original video to extend. |
+| **prompt** | `STRING` | _N/A_ | Multiline string. Text description to guide the extension. |
+| **aspect_ratio** | `Dropdown` | `16:9` | The aspect ratio of the generated video. **Options:** `16:9`, `9:16`. |
+| **output_resolution**| `Dropdown` | `720p` | Resolution of the output video. **Options:** `720p`, `1080p`, `4k`. |
+| **compression_quality**| `Dropdown` | `optimized` | Video quality. **Options:** `optimized`, `lossless`. |
+| **person_generation** | `Dropdown` | `allow_adult` | Controls if the model generates people. **Options:** `allow_adult`, `dont_allow`. |
+| **duration_seconds** | `INT` | `8` | Additional length of video to generate in seconds. **Min:** 4, **Max:** 8, **Step:** 2. |
+| **generate_audio** | `BOOLEAN` | `True` | If true, generates a soundtrack for the video. |
+| **sample_count** | `INT` | `1` | Number of video samples to generate. **Min:** 1, **Max:** 4. |
+| **gcp_project_id** | `STRING` | `""` | Manually specify GCP Project ID. |
+| **gcp_region** | `STRING` | `""` | Manually specify GCP Region. |
+
+#### Optional Inputs
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| **output_gcs_uri** | `STRING` | `""` | GCS path to save output. Required if `compression_quality` is `lossless`. |
+| **negative_prompt** | `STRING` | `""` | Text description of elements to avoid in the video. |
+
+#### Outputs
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| **video_paths** | `VEO_VIDEO` | A list of file paths to the generated extended videos. |
+
 ### Gemini 2.5 Flash Image (Nano Banana 🍌)
 
 Category: `Google AI/GeminiFlashImage`
@@ -725,6 +764,92 @@ This node integrates with Lyria2 to generate music tracks based on text prompts.
 | Name | Type | Description |
 | :--- | :--- | :--- |
 | **audio** | `AUDIO` | The generated music as a standard ComfyUI audio dictionary (waveform and sample rate). |
+
+### Lyria 3 Custom Nodes
+
+Category: `Google AI/Lyria3`
+
+These nodes integrate the Lyria 3 family of models (`lyria-3-clip-preview` and `lyria-3-pro-preview`) capable of generating full tracks with structural components, vocals, and lyrics, supporting both text and image prompts.
+
+#### 1. Lyria 3 Text To Music
+
+Generates audio (up to 3 minutes using the Pro model) from text prompts. You can include specific structural cues (e.g., "Verse 1", "Chorus") directly in your prompt text.
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| **prompt** | `STRING` | _"Genre: Upbeat, acoustic Folk-Pop..."_ | Multiline string. The text description and lyrics for the music generation. |
+| **model** | `Dropdown` | `LYRIA_3_PRO` | Select the model version (e.g., `LYRIA_3_PRO` or `LYRIA_3_CLIP`). |
+| **api_key** | `STRING` | `""` | Optional Google GenAI API Key. |
+
+#### 2. Lyria 3 Image To Music
+
+Generates an audio track from a multimodal prompt consisting of an image and a text description.
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| **image** | `IMAGE` | _N/A_ | The image tensor to use as visual inspiration for the audio track. |
+| **prompt** | `STRING` | _"Generate an instrumental track based on this..."_ | The text description of the music you want to generate. |
+| **model** | `Dropdown` | `LYRIA_3_CLIP` | Select the model version. |
+| **api_key** | `STRING` | `""` | Optional Google GenAI API Key. |
+
+#### Outputs
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| **audio** | `AUDIO` | The generated music (waveform and sample rate) decoded directly from the API stream. |
+
+---
+
+### Text-To-Speech (TTS) & Voice Cloning
+
+Category: `Google AI/TTS`
+
+These nodes provide high-fidelity voice generation and instant voice cloning using Gemini 2.5 and Chirp 3 models.
+
+#### 1. Gemini 2.5 Text To Speech
+
+Generates speech using the Gemini 2.5 Flash TTS endpoint with built-in voice selection.
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| **text** | `STRING` | _"Hello, how are you today?"_ | The text you want spoken. |
+| **model** | `Dropdown` | `GEMINI_TTS_FLASH` | The Gemini TTS model to use. |
+| **voice_id** | `Dropdown` | `Puck` | The prebuilt voice character (e.g., `Puck`, `Charon`, `Aoede`). |
+
+#### 2. Gemini TTS Enhanced
+
+Provides granular stylistic and emotional control over the voice output using prompt-based styling directives.
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| **text** | `STRING` | _"Hello, how are you today?"_ | The text you want spoken. |
+| **voice_id** | `Dropdown` | `Puck` | The prebuilt voice character. |
+| **emotion** | `Dropdown` | `none` | Predefined emotional mapping (`none`, `anger`, `joy`, `empathy`). |
+| **style** | `STRING` | `none` | Custom style directives (e.g., "whispering, dramatic"). |
+
+#### 3. Chirp Text To Speech
+
+Generates speech using Google's Chirp models (Chirp 2 and Chirp 3).
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| **text** | `STRING` | _"Hello, how are you today?"_ | The text you want spoken. |
+| **model** | `Dropdown` | `CHIRP_3` | The specific Chirp model version. |
+
+#### 4. Chirp 3 TTS With Cloning
+
+Generates speech using Chirp 3 with the ability to clone a voice instantly from a provided audio sample.
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| **text** | `STRING` | _"Hello, how are you today?"_ | The text you want spoken. |
+| **reference_audio** | `AUDIO` | _N/A_ | The source audio containing the voice you want to clone. |
+
+#### Outputs (All TTS Nodes)
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| **audio** | `AUDIO` | The generated speech as a ComfyUI audio dictionary. |
 
 
 ### Video to VHS
