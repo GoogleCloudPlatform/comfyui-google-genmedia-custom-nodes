@@ -233,7 +233,7 @@ This node provides an interface to the Imagen4 for high-quality text-to-image ge
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| **model** | `Dropdown` | `IMAGEN_4_PREVIEW` | Selects the specific Imagen4 model version to use. |
+| **model** | `Dropdown` | `IMAGEN_4` | Selects the specific Imagen4 model version to use. |
 | **prompt** | `STRING` | `A vivid landscape painting of a futuristic city.` | Multiline string. The main text description for the image generation. |
 | **person_generation** | `Dropdown` | `allow_adult` | Controls if the model generates people. **Options:** `allow_adult`, `dont_allow`. |
 | **aspect_ratio** | `Dropdown` | `16:9` | The aspect ratio of the generated images. **Options:** `1:1`, `16:9`, `4:3`, `3:4`, `9:16`. |
@@ -394,7 +394,7 @@ Generates videos purely from text prompts using the Google Veo 3.1.
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| **model** | `Dropdown` | `VEO_3_1_PREVIEW` | Select the specific Veo 3 model version. |
+| **model** | `Dropdown` | `VEO_3_1` | Select the specific Veo 3 model version. |
 | **prompt** | `STRING` | _N/A_ | Multiline string. The main text description for the video generation. |
 | **aspect_ratio** | `Dropdown` | `16:9` | The aspect ratio of the generated video. **Options:** `16:9`, `9:16`. |
 | **output_resolution**| `Dropdown` | `720p` | Resolution of the output video. **Options:** `720p`, `1080p`. |
@@ -436,7 +436,7 @@ Generates videos using an image stored on Google Cloud Storage (GCS) as the star
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| **model** | `Dropdown` | `VEO_3_1_PREVIEW` | Select the specific Veo 3 model version. |
+| **model** | `Dropdown` | `VEO_3_1` | Select the specific Veo 3 model version. |
 | **gcsuri** | `STRING` | `""` | The `gs://` URI path to the input image. |
 | **image_format** | `Dropdown` | `PNG` | The format of the input image. **Options:** `PNG`, `JPEG`, `MP4`. |
 | **prompt** | `STRING` | _N/A_ | Multiline string. Text description to guide the animation. |
@@ -478,7 +478,7 @@ Generates videos using a ComfyUI image tensor (passed from another node) as the 
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| **model** | `Dropdown` | `VEO_3_1_PREVIEW` | Select the specific Veo 3 model version. |
+| **model** | `Dropdown` | `VEO_3_1` | Select the specific Veo 3 model version. |
 | **image** | `IMAGE` | _N/A_ | The input image tensor from ComfyUI. |
 | **image_format** | `Dropdown` | `PNG` | Format hint for the API. **Options:** `PNG`, `JPEG`, `MP4`. |
 | **prompt** | `STRING` | _N/A_ | Multiline string. Text description to guide the animation. |
@@ -522,7 +522,7 @@ Generates videos using multiple reference images to guide the style and content.
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| **model** | `Dropdown` | `VEO_3_1_PREVIEW` | Select the specific Veo 3 model version. |
+| **model** | `Dropdown` | `VEO_3_1` | Select the specific Veo 3 model version. |
 | **image1** | `IMAGE` | _N/A_ | The primary reference image tensor. |
 | **image_format** | `Dropdown` | `PNG` | Format hint for the API. **Options:** `PNG`, `JPEG`. |
 | **prompt** | `STRING` | _N/A_ | Multiline string. Text description to guide the animation. |
