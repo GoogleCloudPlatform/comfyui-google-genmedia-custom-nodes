@@ -203,7 +203,169 @@ class Imagen4TextToImageNode:
         batched_images_tensor = torch.cat(output_tensors, dim=0)
         return (batched_images_tensor,)
 
+class Imagen4UpscaleImageNode:
+    """
+    A ComfyUI node for upscaling images using the Google Imagen API.
+    """
 
-NODE_CLASS_MAPPINGS = {"Imagen4TextToImageNode": Imagen4TextToImageNode}
+    def __init__(self) -> None:
+        """
+        Initializes the ImagenUpscaleImageNode.
+        """
+        pass
 
-NODE_DISPLAY_NAME_MAPPINGS = {"Imagen4TextToImageNode": "Imagen4 Text To Image"}
+    @classmethod
+    def INPUT_TYPES(cls) -> Dict[str, Dict[str, Any]]:
+        """
+        Defines the input types and widgets for the ComfyUI node.
+
+        Returns:
+            A dictionary specifying the required and optional input parameters.
+        """
+        return {
+            "required": {
+                "model": (
+                    [model.name for model in Imagen4Model],
+                    {"default": Imagen4Model.IMAGEN_4.name},
+                ),
+                "image": ("IMAGE",),
+                "image_format": (
+                    ["PNG", "JPEG"],
+                    {"default": "PNG", "tooltip": "mime type of the image"},
+                ),
+                "upscale_factor": (
+                    ["x2", "x3", "x4"],
+                    {"default": "x2", "tooltip": "factor by which to upscale the image"},
+                ),
+            },
+            "optional": {
+                "safety_filter_level": (
+                    [
+                        "BLOCK_LOW_AND_ABOVE",
+                        "BLOCK_MEDIUM_AND_ABOVE",
+                        "BLOCK_ONLY_HIGH",
+                        "BLOCK_NONE",
+                    ],
+                    {"default": "BLOCK_MEDIUM_AND_ABOVE"},
+                ),
+                "person_generation": (
+                    ["allow_adult", "dont_allow"],
+                    {"default": "allow_adult"},
+                ),
+                "enhance_input_image": ("BOOLEAN", {"default": True}),
+                "image_preservation_factor": (
+                    "FLOAT",
+                    {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.1},
+                ),
+                "gcp_project_id": (
+                    "STRING",
+                    {
+                        "default": "",
+                        "tooltip": "GCP project id where Vertex AI API will query Imagen",
+                    },
+                ),
+                "gcp_region": (
+                    "STRING",
+                    {
+                        "default": "",
+                        "tooltip": "GCP region for Vertex AI API",
+                    },
+                ),
+            },
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("Generated Image",)
+
+    FUNCTION = "upscale_and_return_image"
+    CATEGORY = "Google AI/Imagen4"
+
+    def upscale_and_return_image(
+        self,
+        model: str = Imagen4Model.IMAGEN_4_UPSCALE.name,
+        image: torch.Tensor = None,
+        image_format: str = "PNG",
+        upscale_factor: str = "x2",
+        safety_filter_level: str = "BLOCK_MEDIUM_AND_ABOVE",
+        person_generation: str = "dont_allow",
+        enhance_input_image: bool = None,
+        image_preservation_factor: float = None,
+        gcp_project_id: Optional[str] = None,
+        gcp_region: Optional[str] = None,
+    ) -> Tuple[torch.Tensor,]:
+        """
+        Upscale an image based on the provided parameters using the Imagen API
+        and returns it as a PyTorch tensor suitable for ComfyUI.
+
+        Args:
+            model: Imagen4 model.
+            image: The input image as a torch.Tensor.
+            image_format: The format of the input image.
+            upscale_factor: The factor by which to upscale the image.
+            safety_filter_level: The safety filter strictness.
+            person_generation: Controls whether the model can generate people.
+            enhance_input_image: Whether to enhance the input image.
+            image_preservation_factor: The level of image preservation.
+            gcp_project_id: GCP project ID where the Imagen will be queried via Vertex AI APIs
+            gcp_region: GCP region for Vertex AI APIs to query Imagen
+
+        Returns:
+            A tuple containing a PyTorch tensor of the generated images,
+            formatted as (batch_size, height, width, channels).
+
+        Raises:
+            RuntimeError: If API configuration fails, or if image generation encounters an API error.
+        """
+        try:
+            imagen_api = Imagen4API(project_id=gcp_project_id, region=gcp_region)
+        except ConfigurationError as e:
+            raise RuntimeError(f"Imagen API Configuration Error: {e}") from e
+
+        p_gen_enum = getattr(types.PersonGeneration, person_generation.upper()) 
+
+        try:
+            pil_images = imagen_api.upscale_image(
+                model=model,
+                image=image,
+                image_format=image_format,
+                upscale_factor=upscale_factor,
+                person_generation=p_gen_enum,
+                safety_filter_level=safety_filter_level,
+                enhance_input_image=enhance_input_image,
+                image_preservation_factor=image_preservation_factor,
+            )
+        except APIInputError as e:
+            raise RuntimeError(f"Imagen API Input Error: {e}") from e
+        except APIExecutionError as e:
+            raise RuntimeError(f"Imagen API Execution Error: {e}") from e
+        except Exception as e:
+            raise RuntimeError(
+                f"An unexpected error occurred during image generation: {e}"
+            ) from e
+            # return (torch.empty(0, 640, 640, 3),)
+
+        if not pil_images:
+            raise RuntimeError(
+                "Imagen API failed to upscale image or generated no valid images."
+            )
+
+        output_tensors: List[torch.Tensor] = []
+        for img in pil_images:
+            img = img.convert("RGB")
+            img_np = np.array(img).astype(np.float32) / 255.0
+            img_tensor = torch.from_numpy(img_np)[None,]
+            output_tensors.append(img_tensor)
+
+        batched_images_tensor = torch.cat(output_tensors, dim=0)
+        return (batched_images_tensor,)
+
+
+NODE_CLASS_MAPPINGS = {
+    "Imagen4TextToImageNode": Imagen4TextToImageNode,
+    "Imagen4UpscaleImageNode": Imagen4UpscaleImageNode,
+}
+
+NODE_DISPLAY_NAME_MAPPINGS = {
+    "Imagen4TextToImageNode": "Imagen4 Text To Image",
+    "Imagen4UpscaleImageNode": "Imagen4 Upscale Image",
+}

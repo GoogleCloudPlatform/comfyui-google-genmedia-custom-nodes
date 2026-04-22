@@ -30,12 +30,12 @@ from .gemini_pro_image_api import GeminiProImageAPI
 
 class Gemini3ProImage:
     """
-    A ComfyUI node for generating images from text prompts using the Google Imagen API.
+    A ComfyUI node for generating images from text prompts using the Google Gemini Pro Image API.
     """
 
     def __init__(self) -> None:
         """
-        Initializes the ImagenTextToImageNode.
+        Initializes the Gemini3ProImage Node.
         """
         pass
 
@@ -222,7 +222,7 @@ class Gemini3ProImage:
             )
         except ConfigurationError as e:
             raise RuntimeError(
-                f"Gemini Flash Image API Configuration Error: {e}"
+                f"Gemini Pro Image API Configuration Error: {e}"
             ) from e
 
         output_mime_type = "image/" + output_mime_type.lower()

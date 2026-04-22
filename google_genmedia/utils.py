@@ -196,6 +196,84 @@ def generate_image_from_text(
 
     return generated_pil_images
 
+@api_error_retry
+def upscale_image(
+    client: genai.Client,
+    model: str,
+    image: torch.Tensor,
+    image_format: str,
+    upscale_factor: str,
+    safety_filter_level: str,
+    person_generation: str,
+    enhance_input_image: bool,
+    image_preservation_factor: float,
+) -> PIL_Image.Image:
+    """
+    Generate image from text prompt using Imagen.
+
+    Args:
+        client: genai.Client
+        model: model to be used
+        image: The input image as a torch.Tensor (ComfyUI format).
+        image_format: The format of the input image (e.g., "PNG", "JPEG").
+        upscale_factor: The factor by which to upscale the image.
+        safety_filter_level: The safety filter strictness.
+        person_generation: Controls whether the model can generate people.
+        enhance_input_image: Whether to add an image enhancing step before upscaling.
+        image_preservation_factor: The factor by which to preserve the input image.
+
+    Returns:
+        A list of PIL Image objects. Returns an empty list on failure.
+
+    Raises:
+        APIInputError: If input parameters are invalid (e.g., unsupported output type).
+        APIExecutionError: If the API call fails due to quota, permissions, or server issues.
+    """
+
+    input_image_format_upper = image_format.upper()
+    mime_type: str
+
+    if input_image_format_upper == "PNG":
+        mime_type = "image/png"
+    elif input_image_format_upper == "JPEG":
+        mime_type = "image/jpeg"
+    else:
+        raise APIInputError(
+            f"Unsupported image format for Base64 encoding: {image_format}"
+        )
+
+    image_input_str = tensor_to_pil_to_base64(image, input_image_format_upper)
+    upscale_image = types.Image(image_bytes=image_input_str, mime_type=mime_type)
+    if not image_input_str:
+        raise APIExecutionError(
+            "Failed to prepare image input bytes for Imagen 4.0 Upscale API. Bytes are empty."
+        )
+
+    config = types.UpscaleImageConfig(
+        safety_filter_level=safety_filter_level,
+        person_generation=person_generation,
+        enhance_input_image=enhance_input_image,
+        image_preservation_factor=image_preservation_factor,
+    )
+
+    logger.info("Sending request to Imagen API for upscaling...")
+    response = client.models.upscale_image(model=model, image=upscale_image, upscale_factor=upscale_factor,config=config)
+
+    if not response.generated_images:
+        error_message = "Image upscaling failed or was blocked by safety filters."
+        raise APIExecutionError(error_message)
+
+    generated_pil_images: List[PIL_Image.Image] = []
+    for i, generated_image in enumerate(response.generated_images):
+        if generated_image.image:
+            image_bytes = generated_image.image.image_bytes
+            pil_image = PIL_Image.open(BytesIO(image_bytes))
+            generated_pil_images.append(pil_image)
+        elif generated_image.error:
+            logger.error(f"Error upscaling image {i+1}: {generated_image.error}")
+
+    return generated_pil_images
+
 
 @api_error_retry
 def generate_video_from_gcsuri_image(

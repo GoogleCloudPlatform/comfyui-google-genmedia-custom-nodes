@@ -179,9 +179,9 @@ class GeminiProImageAPI(VertexAIClient):
         )
 
         for part in response.candidates[0].content.parts:
-            if part.text is not None:
+            if not part.thought and part.text is not None:
                 logger.info(f"response is {part.text}")
-            elif part.inline_data is not None:
+            elif not part.thought and part.inline_data is not None:
                 image = Image.open(BytesIO(part.inline_data.data))
                 generated_pil_images.append(image)
 
