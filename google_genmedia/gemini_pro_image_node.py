@@ -50,7 +50,7 @@ class Gemini3ProImage:
         return {
             "required": {
                 "model": (
-                    [model.name for model in GeminiProImageModel],
+                    [GeminiProImageModel.GEMINI_3_PRO_IMAGE.name],
                     {"default": GeminiProImageModel.GEMINI_3_PRO_IMAGE.name},
                 ),
                 "prompt": (

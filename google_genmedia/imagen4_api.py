@@ -148,7 +148,8 @@ class Imagen4API(VertexAIClient):
             APIInputError: If parameters are invalid.
             APIExecutionError: If the API call fails due to quota, permissions, or server issues.
         """
-        return utils.upscale_image  (
+        model = Imagen4Model[model]
+        return utils.upscale_image(
             client=self.client,
             model=model,
             image=image,

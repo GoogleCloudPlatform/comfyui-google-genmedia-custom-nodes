@@ -23,10 +23,12 @@ from .constants import (
     GEMINI_25_FLASH_IMAGE_ASPECT_RATIO,
     GEMINI_31_FLASH_IMAGE_ASPECT_RATIO,
     GeminiFlashImageModel,
+    GeminiProImageModel,
     ThresholdOptions,
 )
 from .custom_exceptions import APIExecutionError, APIInputError, ConfigurationError
 from .gemini_flash_image_api import GeminiFlashImageAPI
+from .gemini_pro_image_api import GeminiProImageAPI
 
 
 class Gemini25FlashImage:
@@ -265,8 +267,8 @@ class Gemini31FlashImage:
         return {
             "required": {
                 "model": (
-                    [GeminiFlashImageModel.GEMINI_31_FLASH_IMAGE.name],
-                    {"default": GeminiFlashImageModel.GEMINI_31_FLASH_IMAGE.name},
+                    [GeminiProImageModel.GEMINI_31_FLASH_IMAGE.name],
+                    {"default": GeminiProImageModel.GEMINI_31_FLASH_IMAGE.name},
                 ),
                 "prompt": (
                     "STRING",

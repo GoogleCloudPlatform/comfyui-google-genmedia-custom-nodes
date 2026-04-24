@@ -758,7 +758,7 @@ class GeminiNode31(VertexAIClient):
             )
             # Make the API call
             logger.info(
-                f"Making Gemini API call with the following Model : {GeminiModel[model]} , config {gen_config_obj}"
+                f"Making Gemini API call with the following Model : {Gemini31Model[model]} , config {gen_config_obj}"
             )  # Prepare Safety Settings
 
         except (KeyError, FileNotFoundError) as e:
@@ -772,12 +772,12 @@ class GeminiNode31(VertexAIClient):
 
         # Make the API call
         logger.info(
-            f"Making Gemini API call with the following Model : {GeminiModel[model]} , config {gen_config_obj}"
+            f"Making Gemini API call with the following Model : {Gemini31Model[model]} , config {gen_config_obj}"
         )
         response = self.client.models.generate_content(
             config=gen_config_obj,
             contents=contents,
-            model=GeminiModel[model],
+            model=Gemini31Model[model],
         )
 
         # Process the response

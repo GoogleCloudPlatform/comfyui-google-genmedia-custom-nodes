@@ -257,6 +257,7 @@ def upscale_image(
     )
 
     logger.info("Sending request to Imagen API for upscaling...")
+    logger.info(f"Config for image upscaling: {config}")
     response = client.models.upscale_image(model=model, image=upscale_image, upscale_factor=upscale_factor,config=config)
 
     if not response.generated_images:
@@ -515,7 +516,7 @@ def generate_video_from_image(
         temp_config["output_gcs_uri"] = output_gcs_uri
 
     if re.search(
-        r"veo-3\.0",
+        r"veo-(3\.0|3\.1)",
         model.value if isinstance(model, object) and hasattr(model, "value") else model,
     ):
         if generate_audio:
