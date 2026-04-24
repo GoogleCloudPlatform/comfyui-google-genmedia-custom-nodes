@@ -36,6 +36,22 @@ GEMINI_25_FLASH_IMAGE_MAX_OUTPUT_TOKEN = 32768
 GEMINI_25_FLASH_IMAGE_USER_AGENT = (
     "cloud-solutions/comfyui-gemini-25-flash-image-custom-node-v1"
 )
+GEMINI_31_FLASH_IMAGE_ASPECT_RATIO = [
+    "1:1",
+    "1:4",
+    "4:1",
+    "1:8",
+    "8:1",
+    "2:3",
+    "3:2",
+    "3:4",
+    "4:3",
+    "4:5",
+    "5:4",
+    "9:16",
+    "16:9",
+    "21:9",
+]
 GEMINI_3_PRO_IMAGE_ASPECT_RATIO = [
     "1:1",
     "2:3",
@@ -60,7 +76,7 @@ LYRIA2_USER_AGENT = "cloud-solutions/comfyui-lyria2-custom-node-v1"
 LYRIA2_MAX_SAMPLES = 4
 LYRIA2_MODEL = "lyria-002"
 MAX_SEED = 0xFFFFFFFF
-OUTPUT_RESOLUTION = ["720p", "1080p"]
+OUTPUT_RESOLUTION = ["720p", "1080p", "4k"]
 STORAGE_USER_AGENT = "cloud-solutions/comfyui-gcs-custom-node-v1"
 SUPPORTED_VIDEO_EXTENSIONS = {".mp4", ".webm", ".ogg", ".mov", ".mkv"}
 VEO2_GENERATE_AUDIO_FLAG = False
@@ -78,6 +94,7 @@ VTO_USER_AGENT = "cloud-solutions/virtual-try-on-custom-node-v1"
 
 class GeminiFlashImageModel(Enum):
     GEMINI_25_FLASH_IMAGE = "gemini-2.5-flash-image"
+    GEMINI_31_FLASH_IMAGE = "gemini-3.1-flash-image-preview"
 
 
 class GeminiModel(Enum):
@@ -85,10 +102,13 @@ class GeminiModel(Enum):
     GEMINI_FLASH = "gemini-2.5-flash"
     GEMINI_FLASH_LITE = "gemini-2.5-flash-lite"
 
+class Gemini31Model(Enum):
+    GEMINI_31_PRO = "gemini-3.1-pro-preview"
+    GEMINI_3_FLASH = "gemini-3-flash-preview"
+    GEMINI_31_FLASH_LITE = "gemini-3.1-flash-lite-preview"
 
 class GeminiProImageModel(Enum):
     GEMINI_3_PRO_IMAGE = "gemini-3-pro-image-preview"
-    GEMINI_3_FLASH_IMAGE = "gemini-3.1-flash-image-preview"
 
 
 class Imagen4Model(str, Enum):

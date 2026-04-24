@@ -134,7 +134,7 @@ class Imagen4TextToImageNode:
         and returns them as a PyTorch tensor suitable for ComfyUI.
 
         Args:
-            model: Imagen4 model it. There are three as of Jul 1, 2025.
+            model: Imagen4 model id. There are three as of Jul 1, 2025.
             prompt: The text prompt for image generation.
             person_generation: Controls whether the model can generate people.
             aspect_ratio: The desired aspect ratio of the images.
@@ -225,8 +225,8 @@ class Imagen4UpscaleImageNode:
         return {
             "required": {
                 "model": (
-                    [model.name for model in Imagen4Model],
-                    {"default": Imagen4Model.IMAGEN_4.name},
+                    [Imagen4Model.IMAGEN_4_UPSCALE.name],
+                    {"default": Imagen4Model.IMAGEN_4_UPSCALE.name},
                 ),
                 "image": ("IMAGE",),
                 "image_format": (
@@ -234,7 +234,7 @@ class Imagen4UpscaleImageNode:
                     {"default": "PNG", "tooltip": "mime type of the image"},
                 ),
                 "upscale_factor": (
-                    ["x2", "x3", "x4"],
+                    ["x2", "x4"],
                     {"default": "x2", "tooltip": "factor by which to upscale the image"},
                 ),
             },

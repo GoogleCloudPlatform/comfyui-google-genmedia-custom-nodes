@@ -41,7 +41,7 @@ class Veo3TextToVideoNode:
                 ),
                 "prompt": ("STRING", {"multiline": True}),
                 "aspect_ratio": (VEO3_VALID_ASPECT_RATIOS, {"default": "16:9"}),
-                "output_resolution": (["720p", "1080p"], {"default": "720p"}),
+                "output_resolution": (["720p", "1080p", "4k"], {"default": "720p"}),
                 "compression_quality": (
                     ["optimized", "lossless"],
                     {"default": "optimized"},
@@ -194,7 +194,7 @@ class Veo3GcsUriImageToVideoNode:
                 ),
                 "prompt": ("STRING", {"multiline": True}),
                 "aspect_ratio": (VEO3_VALID_ASPECT_RATIOS, {"default": "16:9"}),
-                "output_resolution": (["720p", "1080p"], {"default": "720p"}),
+                "output_resolution": (["720p", "1080p", "4k"], {"default": "720p"}),
                 "compression_quality": (
                     ["optimized", "lossless"],
                     {"default": "optimized"},
@@ -357,7 +357,7 @@ class Veo3ImageToVideoNode:
                 ),
                 "prompt": ("STRING", {"multiline": True}),
                 "aspect_ratio": (VEO3_VALID_ASPECT_RATIOS, {"default": "16:9"}),
-                "output_resolution": (["720p", "1080p"], {"default": "720p"}),
+                "output_resolution": (["720p", "1080p", "4k"], {"default": "720p"}),
                 "compression_quality": (
                     ["optimized", "lossless"],
                     {"default": "optimized"},
@@ -529,7 +529,7 @@ class Veo3ReferenceToVideo:
                 ),
                 "prompt": ("STRING", {"multiline": True}),
                 "aspect_ratio": (VEO3_VALID_ASPECT_RATIOS, {"default": "16:9"}),
-                "output_resolution": (["720p", "1080p"], {"default": "720p"}),
+                "output_resolution": (["720p", "1080p", "4k"], {"default": "720p"}),
                 "compression_quality": (
                     ["optimized", "lossless"],
                     {"default": "optimized"},

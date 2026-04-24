@@ -64,7 +64,7 @@ class Imagen4API(VertexAIClient):
         Generate image from text prompt using Imagen4.
 
         Args:
-            model: Imagen4 model it. There are three as of Jul 1, 2025.
+            model: Imagen4 model id. There are three as of Jul 1, 2025.
             prompt: The text prompt for image generation.
             person_generation: Controls whether the model can generate people.
             aspect_ratio: The desired aspect ratio of the images.
@@ -132,7 +132,7 @@ class Imagen4API(VertexAIClient):
         Upscale an image using Imagen4.
 
         Args:
-            model: Imagen4 model it. There are three as of Jul 1, 2025.
+            model: Imagen4 model id. There are three as of Jul 1, 2025.
             image: The input image as a torch.Tensor (ComfyUI format).
             image_format: The format of the input image (e.g., "PNG", "JPEG").
             upscale_factor: The factor by which to upscale the image.
@@ -148,8 +148,6 @@ class Imagen4API(VertexAIClient):
             APIInputError: If parameters are invalid.
             APIExecutionError: If the API call fails due to quota, permissions, or server issues.
         """
-        model = Imagen4Model[model]
-
         return utils.upscale_image  (
             client=self.client,
             model=model,
