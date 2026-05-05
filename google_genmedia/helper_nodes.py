@@ -161,7 +161,8 @@ class VeoVideoSaveAndPreview:
         self, video_paths, autoplay, mute, loop, save_video, save_video_file_prefix
     ):
         try:
-            dest_dir = os.path.join("output", "veo")
+            import folder_paths
+            dest_dir = os.path.join(folder_paths.get_output_directory(), "veo")
             os.makedirs(dest_dir, exist_ok=True)
 
             # Setting preview dir to temp as the veo nodes save the video there
@@ -243,7 +244,7 @@ class VeoVideoSaveAndPreview:
                             .lstrip(os.path.sep),
                         )
                     video_item_for_ui = {
-                        "filename": dest_path,
+                        "filename": (dest_name if save_video else dest_path.replace("temp/", "", 1)),
                         "subfolder": video_subfolder,  # This should be "" if not saved, or "veo" if saved
                         "type": (
                             "output" if save_video else "temp"
