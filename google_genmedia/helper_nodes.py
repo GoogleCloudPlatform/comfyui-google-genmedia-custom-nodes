@@ -235,16 +235,14 @@ class VeoVideoSaveAndPreview:
                         shutil.copy2(video_path_abs, dest_path)
                         logger.info(f"Video copied to: {dest_path}")
                         video_subfolder = "veo"
+                        filename_for_ui = dest_name
                     else:
-                        # if it is just for preview, strip the filename and build the path starting temp directory
-                        dest_path = os.path.join(
-                            os.path.normpath("temp"),
-                            os.path.normpath(video_path_abs)
-                            .rsplit(os.path.normpath("temp"), 1)[1]
-                            .lstrip(os.path.sep),
-                        )
+                        # if it is just for preview, get path relative to temp directory
+                        temp_dir = folder_paths.get_temp_directory()
+                        filename_for_ui = os.path.normpath(video_path_abs).rsplit(os.path.normpath(temp_dir), 1)[1].lstrip(os.path.sep)
+                        video_subfolder = ""
                     video_item_for_ui = {
-                        "filename": (dest_name if save_video else dest_path.replace("temp/", "", 1)),
+                        "filename": filename_for_ui,
                         "subfolder": video_subfolder,  # This should be "" if not saved, or "veo" if saved
                         "type": (
                             "output" if save_video else "temp"
