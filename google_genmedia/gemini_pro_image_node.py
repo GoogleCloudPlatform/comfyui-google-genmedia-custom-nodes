@@ -186,7 +186,7 @@ class Gemini3ProImage:
         PIL images into a PyTorch tensor suitable for use in ComfyUI.
 
         Args:
-            model: The Gemini Pro Image model to use. default: gemini-3-pro-image-preview
+            model: The Gemini Pro Image model to use. default: gemini-3-pro-image
             aspect_ratio: The desired aspect ratio of the output image.
             image_size: The desired image size for the output image.
             output_mime_type: The desired format for the output image.

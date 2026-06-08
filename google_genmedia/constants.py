@@ -94,7 +94,7 @@ VTO_USER_AGENT = "cloud-solutions/virtual-try-on-custom-node-v1"
 
 class GeminiFlashImageModel(Enum):
     GEMINI_25_FLASH_IMAGE = "gemini-2.5-flash-image"
-    GEMINI_31_FLASH_IMAGE = "gemini-3.1-flash-image-preview"
+    GEMINI_31_FLASH_IMAGE = "gemini-3.1-flash-image"
 
 
 class GeminiModel(Enum):
@@ -105,10 +105,13 @@ class GeminiModel(Enum):
 class Gemini31Model(Enum):
     GEMINI_31_PRO = "gemini-3.1-pro-preview"
     GEMINI_3_FLASH = "gemini-3-flash-preview"
-    GEMINI_31_FLASH_LITE = "gemini-3.1-flash-lite-preview"
+    GEMINI_31_FLASH_LITE = "gemini-3.1-flash-lite"
+
+class Gemini35Model(Enum):
+    GEMINI_35_FLASH = "gemini-3.5-flash"
 
 class GeminiProImageModel(Enum):
-    GEMINI_3_PRO_IMAGE = "gemini-3-pro-image-preview"
+    GEMINI_3_PRO_IMAGE = "gemini-3-pro-image"
 
 
 class Imagen4Model(str, Enum):

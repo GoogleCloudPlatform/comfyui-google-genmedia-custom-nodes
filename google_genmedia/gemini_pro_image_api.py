@@ -82,7 +82,7 @@ class GeminiProImageAPI(VertexAIClient):
         """Generates an image using the Gemini Pro Image model.
 
         Args:
-            model: The name of the Gemini model to use. default: gemini-3-pro-image-preview
+            model: The name of the Gemini model to use. default: gemini-3-pro-image
             aspect_ratio: The desired aspect ratio of the output image.
             image_size: The desired image size for the output image.
             output_mime_type: The desired formate for the output image.

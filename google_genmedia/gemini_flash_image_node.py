@@ -166,7 +166,7 @@ class Gemini25FlashImage:
         PIL images into a PyTorch tensor suitable for use in ComfyUI.
 
         Args:
-            model: The Gemini Flash Image model to use. default: gemini-2.5-flash-image-preview
+            model: The Gemini Flash Image model to use. default: gemini-2.5-flash-image
             aspect_ratio: The desired aspect ratio of the output image.
             prompt: The text prompt for image generation.
             temperature: Controls randomness in token generation.
@@ -393,7 +393,7 @@ class Gemini31FlashImage:
         PIL images into a PyTorch tensor suitable for use in ComfyUI.
 
         Args:
-            model: The Gemini Flash Image model to use. default: gemini-3-pro-image-preview
+            model: The Gemini Flash Image model to use. default: gemini-3-pro-image
             aspect_ratio: The desired aspect ratio of the output image.
             image_size: The desired image size for the output image.
             output_mime_type: The desired format for the output image.
