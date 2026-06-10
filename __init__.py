@@ -20,6 +20,7 @@ import logging
 import os
 import sys
 from .google_genmedia import (
+    gemini_35_nodes,
     gemini_flash_image_node,
     gemini_nodes,
     gemini_pro_image_node,
@@ -103,6 +104,7 @@ NODE_CLASS_MAPPINGS = {}
 NODE_DISPLAY_NAME_MAPPINGS = {}
 
 node_modules = [
+    gemini_35_nodes,
     gemini_flash_image_node,
     gemini_nodes,
     gemini_pro_image_node,
