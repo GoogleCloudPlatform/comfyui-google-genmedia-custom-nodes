@@ -1,108 +1,84 @@
 {
   "id": "4e9f33d3-9cca-41f1-9cc4-da94f9b19800",
   "revision": 0,
-  "last_node_id": 31,
-  "last_link_id": 25,
+  "last_node_id": 32,
+  "last_link_id": 28,
   "nodes": [
     {
-      "id": 29,
-      "type": "GeminiNode35",
+      "id": 31,
+      "type": "PreviewImage",
       "pos": [
-        -328.1591678555213,
-        -618.3266155244688
+        1348.7248827575563,
+        -578.0761650260604
       ],
       "size": [
-        400,
-        622
+        431.05875609155964,
+        331.41007111392275
       ],
       "flags": {},
-      "order": 0,
+      "order": 3,
       "mode": 0,
-      "inputs": [],
-      "outputs": [
+      "inputs": [
         {
-          "name": "generated_output",
-          "type": "STRING",
-          "links": [
-            23
-          ]
+          "name": "images",
+          "type": "IMAGE",
+          "link": 25
         }
       ],
+      "outputs": [],
       "properties": {
-        "Node name for S&R": "GeminiNode35"
+        "cnr_id": "comfy-core",
+        "ver": "0.24.0",
+        "Node name for S&R": "PreviewImage"
       },
-      "widgets_values": [
-        "Write a single prompt for me to generate an artistic image of a man.The prompt will be fed directly to Image generating model so keep it simple and as detailed as possible. Give me just the prompt, no explanation, acknowledgement or paraphrasing. Write the prompt to create a high definition and real image.",
-        "GEMINI_35_FLASH",
-        0.7,
-        8192,
-        1,
-        32,
-        1,
-        "",
-        "text/plain",
-        "BLOCK_MEDIUM_AND_ABOVE",
-        "BLOCK_MEDIUM_AND_ABOVE",
-        "BLOCK_MEDIUM_AND_ABOVE",
-        "BLOCK_MEDIUM_AND_ABOVE",
-        "",
-        "",
-        "image/png",
-        "",
-        "video/mp4",
-        "",
-        "audio/mp3",
-        "",
-        "global"
-      ]
+      "widgets_values": []
     },
     {
-      "id": 28,
-      "type": "PreviewAny",
+      "id": 32,
+      "type": "ShowText|pysssss",
       "pos": [
-        130.77317654049784,
-        -618.7892187741264
+        144.9652262709186,
+        -448.543975043257
       ],
       "size": [
-        418.9521459486082,
-        442.81372208377866
+        336.86091851326387,
+        304.2924937380709
       ],
       "flags": {},
       "order": 1,
       "mode": 0,
       "inputs": [
         {
-          "name": "source",
-          "type": "*",
-          "link": 23
+          "name": "text",
+          "type": "STRING",
+          "link": 26
         }
       ],
       "outputs": [
         {
           "name": "STRING",
+          "shape": 6,
           "type": "STRING",
           "links": [
-            24
+            28
           ]
         }
       ],
       "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.24.0",
-        "Node name for S&R": "PreviewAny"
+        "cnr_id": "comfyui-custom-scripts",
+        "ver": "f2838ed5e59de4d73cde5c98354b87a8d3200190",
+        "Node name for S&R": "ShowText|pysssss"
       },
       "widgets_values": [
-        null,
-        null,
-        null
+        "A cinematic and highly detailed portrait of a distinguished man in his late 30s with expressive, soulful eyes and a thoughtful expression. He has short, styled dark hair with subtle silver highlights and a neat stubble beard. He is wearing a dark, textured charcoal wool coat with a high collar. The lighting is dramatic chiaroscuro, with soft, warm light illuminating one side of his face, revealing realistic skin texture, fine lines, and pores. The background is a dark, moody, out-of-focus studio setting with subtle hints of amber light. Shot on an 85mm lens, photorealistic, ultra-high definition, 8k resolution, masterful composition."
       ]
     },
     {
       "id": 30,
       "type": "Gemini31FlashImage",
       "pos": [
-        602.6458979926545,
-        -615.6831510293352
+        629.1145929188071,
+        -585.9058692374133
       ],
       "size": [
         400,
@@ -154,7 +130,7 @@
           "widget": {
             "name": "prompt"
           },
-          "link": 24
+          "link": 28
         }
       ],
       "outputs": [
@@ -167,11 +143,13 @@
         }
       ],
       "properties": {
+        "aux_id": "mblanc/comfyui-google-genmedia-custom-nodes",
+        "ver": "6d534a1223503ad2c5a844854f4807c047b2bc9a",
         "Node name for S&R": "Gemini31FlashImage"
       },
       "widgets_values": [
         "GEMINI_31_FLASH_IMAGE",
-        "A vivid landscape painting of a futuristic city",
+        "",
         "16:9",
         "1K",
         "PNG",
@@ -188,52 +166,61 @@
       ]
     },
     {
-      "id": 31,
-      "type": "PreviewImage",
+      "id": 29,
+      "type": "GeminiNode35",
       "pos": [
-        1049.2977714054489,
-        -609.5077402508671
+        -515.0943257714778,
+        -613.363735225815
       ],
       "size": [
-        431.05875609155964,
-        331.41007111392275
+        400,
+        622
       ],
       "flags": {},
-      "order": 3,
+      "order": 0,
       "mode": 0,
-      "inputs": [
+      "inputs": [],
+      "outputs": [
         {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 25
+          "name": "generated_output",
+          "type": "STRING",
+          "links": [
+            26
+          ]
         }
       ],
-      "outputs": [],
       "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.24.0",
-        "Node name for S&R": "PreviewImage"
+        "aux_id": "mblanc/comfyui-google-genmedia-custom-nodes",
+        "ver": "6d534a1223503ad2c5a844854f4807c047b2bc9a",
+        "Node name for S&R": "GeminiNode35"
       },
-      "widgets_values": []
+      "widgets_values": [
+        "Write a single prompt for me to generate an artistic image of a man.The prompt will be fed directly to Image generating model so keep it simple and as detailed as possible. Give me just the prompt, no explanation, acknowledgement or paraphrasing. Write the prompt to create a high definition and real image.",
+        "GEMINI_35_FLASH",
+        0.7,
+        8192,
+        1,
+        32,
+        1,
+        "",
+        "text/plain",
+        "BLOCK_MEDIUM_AND_ABOVE",
+        "BLOCK_MEDIUM_AND_ABOVE",
+        "BLOCK_MEDIUM_AND_ABOVE",
+        "BLOCK_MEDIUM_AND_ABOVE",
+        "",
+        "",
+        "image/png",
+        "",
+        "video/mp4",
+        "",
+        "audio/mp3",
+        "",
+        "global"
+      ]
     }
   ],
   "links": [
-    [
-      23,
-      29,
-      0,
-      28,
-      0,
-      "STRING"
-    ],
-    [
-      24,
-      28,
-      0,
-      30,
-      6,
-      "STRING"
-    ],
     [
       25,
       30,
@@ -241,6 +228,22 @@
       31,
       0,
       "IMAGE"
+    ],
+    [
+      26,
+      29,
+      0,
+      32,
+      0,
+      "STRING"
+    ],
+    [
+      28,
+      32,
+      0,
+      30,
+      6,
+      "STRING"
     ]
   ],
   "groups": [],
@@ -249,11 +252,16 @@
     "ds": {
       "scale": 0.6044876804330366,
       "offset": [
-        576.3067104667546,
-        915.0547231167062
+        1006.4230030167432,
+        920.0176034153599
       ]
     },
-    "frontendVersion": "1.45.15"
+    "frontendVersion": "1.35.9",
+    "workflowRendererVersion": "LG",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
   },
   "version": 0.4
 }
