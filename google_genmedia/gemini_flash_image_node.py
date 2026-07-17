@@ -33,12 +33,12 @@ from .gemini_flash_image_api import GeminiFlashImageAPI
 
 class Gemini25FlashImage:
     """
-    A ComfyUI node for generating images from text prompts using the Google Imagen API.
+    A ComfyUI node for generating images from text prompts using the Google Gemini API.
     """
 
     def __init__(self) -> None:
         """
-        Initializes the ImagenTextToImageNode.
+        Initializes the Gemini25FlashImage node.
         """
         pass
 
@@ -121,7 +121,7 @@ class Gemini25FlashImage:
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Imagen",
+                        "tooltip": "GCP project id where Vertex AI API will query Gemini",
                     },
                 ),
                 "gcp_region": (
@@ -232,7 +232,7 @@ class Gemini25FlashImage:
 
         if not pil_images:
             raise RuntimeError(
-                "Imagen API failed to generate images or generated no valid images."
+                "Gemini API failed to generate images or generated no valid images."
             )
 
         output_tensors: List[torch.Tensor] = []
@@ -472,7 +472,7 @@ class Gemini31FlashImage:
 
         if not pil_images:
             raise RuntimeError(
-                "Imagen API failed to generate images or generated no valid images."
+                "Gemini API failed to generate images or generated no valid images."
             )
 
         output_tensors: List[torch.Tensor] = []

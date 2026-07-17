@@ -69,9 +69,6 @@ GEMINI_3_PRO_IMAGE_USER_AGENT = (
     "cloud-solutions/comfyui-gemini-3-pro-image-custom-node-v1"
 )
 IMAGE_MIME_TYPES = ["image/png", "image/jpeg"]
-IMAGEN3_MODEL_ID = "imagen-3.0-generate-002"
-IMAGEN3_USER_AGENT = "cloud-solutions/comfyui-imagen3-custom-node-v1"
-IMAGEN4_USER_AGENT = "cloud-solutions/comfyui-imagen4-custom-node-v1"
 LYRIA2_USER_AGENT = "cloud-solutions/comfyui-lyria2-custom-node-v1"
 LYRIA2_MAX_SAMPLES = 4
 LYRIA2_MODEL = "lyria-002"
@@ -112,13 +109,6 @@ class Gemini35Model(Enum):
 
 class GeminiProImageModel(Enum):
     GEMINI_3_PRO_IMAGE = "gemini-3-pro-image"
-
-
-class Imagen4Model(str, Enum):
-    IMAGEN_4 = "imagen-4.0-generate-001"
-    IMAGEN_4_FAST = "imagen-4.0-fast-generate-001"
-    IMAGEN_4_ULTRA = "imagen-4.0-ultra-generate-001"
-    IMAGEN_4_UPSCALE = "imagen-4.0-upscale-preview"
 
 
 class ThresholdOptions(Enum):

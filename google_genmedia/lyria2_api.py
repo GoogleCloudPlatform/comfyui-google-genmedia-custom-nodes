@@ -31,7 +31,7 @@ logger = get_node_logger(__name__)
 
 class Lyria2API(VertexAIClient):
     """
-    A class to interact with the Imagen API for image generation.
+    A class to interact with the Lyria API for music/audio generation.
     """
 
     def __init__(self, project_id: Optional[str] = None, region: Optional[str] = None):

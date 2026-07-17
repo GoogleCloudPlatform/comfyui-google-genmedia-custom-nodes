@@ -265,7 +265,7 @@ class Gemini3ProImage:
 
         if not pil_images:
             raise RuntimeError(
-                "Imagen API failed to generate images or generated no valid images."
+                "Gemini API failed to generate images or generated no valid images."
             )
 
         output_tensors: List[torch.Tensor] = []

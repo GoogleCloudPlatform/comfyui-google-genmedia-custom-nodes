@@ -73,7 +73,7 @@ class Veo3TextToVideoNode:
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Imagen",
+                        "tooltip": "GCP project id where Vertex AI API will query Veo",
                     },
                 ),
                 "gcp_region": (
@@ -230,7 +230,7 @@ class Veo3GcsUriImageToVideoNode:
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Imagen",
+                        "tooltip": "GCP project id where Vertex AI API will query Veo",
                     },
                 ),
                 "gcp_region": (
@@ -390,7 +390,7 @@ class Veo3ImageToVideoNode:
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Imagen",
+                        "tooltip": "GCP project id where Vertex AI API will query Veo",
                     },
                 ),
                 "gcp_region": (

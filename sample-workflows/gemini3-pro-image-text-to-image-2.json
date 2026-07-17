@@ -35,19 +35,56 @@
     },
     {
       "id": 3,
-      "type": "Imagen4TextToImageNode",
+      "type": "Gemini3ProImage",
       "pos": [
         1035.3082275390625,
         215.0686492919922
       ],
       "size": [
         400,
-        400
+        554
       ],
       "flags": {},
       "order": 0,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "image1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image3",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image4",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image5",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image6",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
       "outputs": [
         {
           "name": "Generated Image",
@@ -58,23 +95,24 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "Imagen4TextToImageNode"
+        "Node name for S&R": "Gemini3ProImage"
       },
       "widgets_values": [
-        "IMAGEN_4",
+        "GEMINI_3_PRO_IMAGE",
         "An impossible architectural marvel: a colossal, spiraling tower made of interwoven glass and liquid metal, reaching into a stormy, aurora-lit sky. Swarms of tiny, luminous drones navigate its complex structure, leaving trails of light. The base of the tower is submerged in a perfectly still, reflective lake that mirrors the celestial spectacle above. Ultra-high resolution, cinematic lighting",
-        "allow_adult",
         "16:9",
-        1,
-        "",
-        0,
-        "randomize",
-        true,
-        false,
+        "1K",
         "PNG",
+        0.7,
+        1,
+        32,
+        "BLOCK_MEDIUM_AND_ABOVE",
+        "BLOCK_MEDIUM_AND_ABOVE",
+        "BLOCK_MEDIUM_AND_ABOVE",
         "BLOCK_MEDIUM_AND_ABOVE",
         "",
-        ""
+        "",
+        "global"
       ]
     }
   ],
@@ -98,7 +136,7 @@
         -104.90526395143291
       ]
     },
-    "frontendVersion": "1.20.7",
+    "frontendVersion": "1.23.4",
     "VHS_latentpreview": false,
     "VHS_latentpreviewrate": 0,
     "VHS_MetadataImage": true,

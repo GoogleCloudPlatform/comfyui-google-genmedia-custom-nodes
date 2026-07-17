@@ -35,19 +35,56 @@
     },
     {
       "id": 5,
-      "type": "Imagen3TextToImageNode",
+      "type": "Gemini3ProImage",
       "pos": [
         716.44384765625,
         170.6139678955078
       ],
       "size": [
         400,
-        406
+        554
       ],
       "flags": {},
       "order": 0,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "image1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image3",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image4",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image5",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image6",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
       "outputs": [
         {
           "name": "Generated Image",
@@ -59,22 +96,24 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "Imagen3TextToImageNode"
+        "Node name for S&R": "Gemini3ProImage"
       },
       "widgets_values": [
+        "GEMINI_3_PRO_IMAGE",
         "A hyperrealistic, macro shot of a bioluminescent forest where every leaf and branch glows with intricate, pulsating patterns. Raindrops suspended mid-air reflect miniature galaxies, and the ground is covered in iridescent, crystalline moss. The lighting is ethereal, creating deep shadows and vibrant highlights, with a soft, misty atmosphere",
-        "ALLOW_ADULT",
         "16:9",
-        1,
-        "",
-        3460779063,
-        "randomize",
-        true,
-        false,
+        "1K",
         "PNG",
+        0.7,
+        1,
+        32,
+        "BLOCK_MEDIUM_AND_ABOVE",
+        "BLOCK_MEDIUM_AND_ABOVE",
+        "BLOCK_MEDIUM_AND_ABOVE",
         "BLOCK_MEDIUM_AND_ABOVE",
         "",
-        ""
+        "",
+        "global"
       ]
     },
     {

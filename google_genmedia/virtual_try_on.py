@@ -112,7 +112,7 @@ class VirtualTryOn(VertexAIClient):
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Imagen",
+                        "tooltip": "GCP project id where Vertex AI API will query the model",
                     },
                 ),
                 "gcp_region": (

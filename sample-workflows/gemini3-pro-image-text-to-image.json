@@ -35,19 +35,56 @@
     },
     {
       "id": 3,
-      "type": "Imagen3TextToImageNode",
+      "type": "Gemini3ProImage",
       "pos": [
         808.718017578125,
         208.20108032226562
       ],
       "size": [
         400,
-        376
+        554
       ],
       "flags": {},
       "order": 0,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "image1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image3",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image4",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image5",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image6",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
       "outputs": [
         {
           "name": "Generated Image",
@@ -58,22 +95,24 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "Imagen3TextToImageNode"
+        "Node name for S&R": "Gemini3ProImage"
       },
       "widgets_values": [
+        "GEMINI_3_PRO_IMAGE",
         "A close-up of a single, ancient tree that is slowly transforming into pure energy. Its bark is cracking to reveal an intricate network of glowing, golden circuits, and its leaves are dissolving into swirling nebulae of light. The setting sun casts a warm, golden glow on the untouched parts of the tree, creating a stark contrast with the vibrant energy emanating from its core. Photorealistic, hyper-detailed, spiritual",
-        "ALLOW_ADULT",
         "16:9",
-        1,
-        "",
-        0,
-        "randomize",
-        true,
-        false,
+        "1K",
         "PNG",
+        0.7,
+        1,
+        32,
+        "BLOCK_MEDIUM_AND_ABOVE",
+        "BLOCK_MEDIUM_AND_ABOVE",
+        "BLOCK_MEDIUM_AND_ABOVE",
         "BLOCK_MEDIUM_AND_ABOVE",
         "",
-        ""
+        "",
+        "global"
       ]
     }
   ],

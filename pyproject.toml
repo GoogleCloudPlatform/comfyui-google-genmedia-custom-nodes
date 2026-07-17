@@ -1,6 +1,6 @@
 [project]
 name = "comfyui-google-genmedia-custom-nodes"
-description = "A suite of experimental custom nodes that allows access to Google's 1P models like Veo, Imagen, Nano Banana, Gemini, Virtual-try-on, Lyria"
+description = "A suite of experimental custom nodes that allows access to Google's 1P models like Veo, Nano Banana, Gemini, Virtual-try-on, Lyria"
 version = "6.0.0"
 license = {file = "LICENSE"} 
 
