@@ -14,6 +14,7 @@
 
 # This is a preview version of Google GenAI custom nodes
 
+import ast
 import configparser
 import importlib
 import logging
@@ -44,6 +45,46 @@ def setup_custom_package_logger():
     config_file = os.path.join(current_dir, "logging.conf")
     config = configparser.ConfigParser(interpolation=None)
 
+    def safe_eval_logging_args(args_str: str) -> tuple:
+        """Safely evaluates logging handler arguments using ast parsing."""
+        if not args_str.strip():
+            return ()
+        try:
+            node = ast.parse(args_str.strip(), mode="eval")
+        except SyntaxError as e:
+            raise ValueError(f"Invalid syntax in arguments: {args_str}") from e
+
+        def _eval(node_expr):
+            if isinstance(node_expr, ast.Expression):
+                return _eval(node_expr.body)
+            elif isinstance(node_expr, ast.Tuple):
+                return tuple(_eval(x) for x in node_expr.elts)
+            elif isinstance(node_expr, ast.List):
+                return [_eval(x) for x in node_expr.elts]
+            elif isinstance(node_expr, ast.Constant):
+                return node_expr.value
+            elif isinstance(node_expr, ast.Name):
+                if node_expr.id == "sys":
+                    return sys
+                elif node_expr.id == "logging":
+                    return logging
+                raise ValueError(f"Unsupported name: {node_expr.id}")
+            elif isinstance(node_expr, ast.Attribute):
+                val = _eval(node_expr.value)
+                return getattr(val, node_expr.attr)
+            elif isinstance(node_expr, ast.UnaryOp) and isinstance(node_expr.op, (ast.UAdd, ast.USub)):
+                operand = _eval(node_expr.operand)
+                return -operand if isinstance(node_expr.op, ast.USub) else operand
+            else:
+                raise ValueError(
+                    f"Unsupported AST node type: {type(node_expr).__name__}"
+                )
+
+        res = _eval(node)
+        if not isinstance(res, (tuple, list)):
+            return (res,)
+        return res
+
     try:
         config.read(config_file)
         if "formatter_customFormatter" not in config:
@@ -73,7 +114,7 @@ def setup_custom_package_logger():
         )  # initializes logging.StreamHandler but will dynamically instantiate any class defined in logging.conf
 
         # Safely evaluate the arguments (e.g., (sys.stdout,))
-        handler_args = eval(handler_args_str, {"sys": sys, "logging": logging})
+        handler_args = safe_eval_logging_args(handler_args_str)
         custom_handler = HandlerClass(*handler_args)
         LOG_LEVEL = logging.getLevelName(LOG_LEVEL_STR.upper())
         custom_handler.setFormatter(custom_formatter)
