@@ -25,7 +25,7 @@ from PIL import Image
 
 from . import utils
 from .base import VertexAIClient
-from .constants import MAX_SEED, VTO_MODEL, VTO_USER_AGENT
+from .constants import GCP_PROJECT_ID_TOOLTIP, GCP_REGION_TOOLTIP, MAX_SEED, VTO_MODEL, VTO_USER_AGENT
 from .custom_exceptions import APIExecutionError, APIInputError, ConfigurationError
 from .logger import get_node_logger
 from .retry import api_error_retry
@@ -53,12 +53,21 @@ class VirtualTryOn(VertexAIClient):
         """
         super().__init__(gcp_project_id, gcp_region)
         try:
-            aiplatform.init(project=self.project_id, location=self.region)
+            # self.credentials is None unless the environment supplied a service
+            # account key, in which case both calls fall back to Application
+            # Default Credentials exactly as they did before.
+            aiplatform.init(
+                project=self.project_id,
+                location=self.region,
+                credentials=self.credentials,
+            )
             self.api_regional_endpoint = f"{self.region}-aiplatform.googleapis.com"
             self.client_options = {"api_endpoint": self.api_regional_endpoint}
             self.client_info = ClientInfo(user_agent=VTO_USER_AGENT)
             self.client = aiplatform.gapic.PredictionServiceClient(
-                client_options=self.client_options, client_info=self.client_info
+                client_options=self.client_options,
+                client_info=self.client_info,
+                credentials=self.credentials,
             )
             self.model_endpoint = f"projects/{self.project_id}/locations/{self.region}/publishers/google/models/{VTO_MODEL}"
             logger.info(
@@ -112,14 +121,14 @@ class VirtualTryOn(VertexAIClient):
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query the model",
+                        "tooltip": GCP_PROJECT_ID_TOOLTIP,
                     },
                 ),
                 "gcp_region": (
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP region for Vertex AI API",
+                        "tooltip": GCP_REGION_TOOLTIP,
                     },
                 ),
             },

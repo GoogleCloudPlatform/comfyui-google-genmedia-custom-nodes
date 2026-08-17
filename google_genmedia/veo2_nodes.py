@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 
-from .constants import MAX_SEED
+from .constants import GCP_PROJECT_ID_TOOLTIP, GCP_REGION_TOOLTIP, MAX_SEED
 from .custom_exceptions import APIExecutionError, APIInputError, ConfigurationError
 from .logger import get_node_logger
 from .veo2_api import Veo2API
@@ -68,14 +68,14 @@ class Veo2TextToVideoNode:
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Veo",
+                        "tooltip": GCP_PROJECT_ID_TOOLTIP,
                     },
                 ),
                 "gcp_region": (
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP region for Vertex AI API",
+                        "tooltip": GCP_REGION_TOOLTIP,
                     },
                 ),
             },
@@ -116,7 +116,7 @@ class Veo2TextToVideoNode:
             negative_prompt: An optional prompt to guide the model to avoid generating certain things.
             seed: An optional seed for reproducible video generation.
             gcp_project_id: GCP project ID where the Veo will be queried via Vertex AI APIs
-            gcp_region: GCP region for Vertex AI APIs to query Veo
+            gcp_region: Optional GCP region for the Vertex AI APIs used to query Veo. Falls back to GOOGLE_CLOUD_LOCATION, then GCE metadata.
 
         Returns:
             A tuple containing a list of file paths to the generated videos.
@@ -211,14 +211,14 @@ class Veo2GcsUriImageToVideoNode:
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Veo",
+                        "tooltip": GCP_PROJECT_ID_TOOLTIP,
                     },
                 ),
                 "gcp_region": (
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP region for Vertex AI API",
+                        "tooltip": GCP_REGION_TOOLTIP,
                     },
                 ),
             },
@@ -265,7 +265,7 @@ class Veo2GcsUriImageToVideoNode:
             negative_prompt: An optional prompt to guide the model to avoid generating certain things.
             seed: An optional seed for reproducible video generation.
             gcp_project_id: GCP project ID where the Veo will be queried via Vertex AI APIs
-            gcp_region: GCP region for Vertex AI APIs to query Veo
+            gcp_region: Optional GCP region for the Vertex AI APIs used to query Veo. Falls back to GOOGLE_CLOUD_LOCATION, then GCE metadata.
 
         Returns:
             A tuple containing a list of file paths to the generated videos.
@@ -357,14 +357,14 @@ class Veo2ImageToVideoNode:
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Veo",
+                        "tooltip": GCP_PROJECT_ID_TOOLTIP,
                     },
                 ),
                 "gcp_region": (
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP region for Vertex AI API",
+                        "tooltip": GCP_REGION_TOOLTIP,
                     },
                 ),
             },
@@ -411,7 +411,7 @@ class Veo2ImageToVideoNode:
             output_gcs_uri: output gcs url to store the video. Required with lossless output.
             negative_prompt: An optional prompt to guide the model to avoid generating certain things.
             gcp_project_id: GCP project ID where the Veo will be queried via Vertex AI APIs
-            gcp_region: GCP region for Vertex AI APIs to query Veo
+            gcp_region: Optional GCP region for the Vertex AI APIs used to query Veo. Falls back to GOOGLE_CLOUD_LOCATION, then GCE metadata.
 
         Returns:
             A tuple containing a list of file paths to the generated videos.

@@ -20,6 +20,8 @@ import numpy as np
 import torch
 
 from .constants import (
+    GCP_PROJECT_ID_TOOLTIP,
+    GCP_REGION_TOOLTIP,
     GEMINI_3_PRO_IMAGE_ASPECT_RATIO,
     GeminiProImageModel,
     ThresholdOptions,
@@ -136,14 +138,14 @@ class Gemini3ProImage:
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Gemini",
+                        "tooltip": GCP_PROJECT_ID_TOOLTIP,
                     },
                 ),
                 "gcp_region": (
                     "STRING",
                     {
                         "default": "global",
-                        "tooltip": "GCP region for Vertex AI API",
+                        "tooltip": GCP_REGION_TOOLTIP,
                     },
                 ),
             },

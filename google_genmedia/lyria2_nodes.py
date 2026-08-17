@@ -16,7 +16,7 @@
 
 from typing import Any, Dict, Optional, Tuple
 
-from .constants import LYRIA2_MAX_SAMPLES, MAX_SEED
+from .constants import GCP_PROJECT_ID_TOOLTIP, GCP_REGION_TOOLTIP, LYRIA2_MAX_SAMPLES, MAX_SEED
 from .custom_exceptions import APIExecutionError, APIInputError, ConfigurationError
 from .lyria2_api import Lyria2API
 
@@ -71,9 +71,20 @@ class Lyria2TextToMusicNode:
                 ),
                 "gcp_project_id": (
                     "STRING",
-                    {"default": "", "placeholder": "your-gcp-project-id"},
+                    {
+                        "default": "",
+                        "placeholder": "your-gcp-project-id",
+                        "tooltip": GCP_PROJECT_ID_TOOLTIP,
+                    },
                 ),
-                "gcp_region": ("STRING", {"default": "", "placeholder": "us-central1"}),
+                "gcp_region": (
+                    "STRING",
+                    {
+                        "default": "",
+                        "placeholder": "us-central1",
+                        "tooltip": GCP_REGION_TOOLTIP,
+                    },
+                ),
             },
         }
 

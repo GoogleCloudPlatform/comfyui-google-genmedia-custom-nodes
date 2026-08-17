@@ -19,6 +19,16 @@ from enum import Enum
 from google.genai import types
 
 AUDIO_MIME_TYPES = ["audio/mp3", "audio/wav", "audio/mpeg"]
+# Shared by every node exposing the optional GCP project/region widgets, so the
+# documented fallback order is stated identically everywhere.
+GCP_PROJECT_ID_TOOLTIP = (
+    "Optional. GCP project id for the Vertex AI API. Leave empty to use the project "
+    "from GOOGLE_APPLICATION_CREDENTIALS_JSON, then GOOGLE_CLOUD_PROJECT, then GCE metadata."
+)
+GCP_REGION_TOOLTIP = (
+    "Optional. GCP region for the Vertex AI API. Leave empty to use "
+    "GOOGLE_CLOUD_LOCATION, then the region from GCE metadata."
+)
 GEMINI_USER_AGENT = "cloud-solutions/comfyui-gemini-custom-node-v1"
 GEMINI_25_FLASH_IMAGE_ASPECT_RATIO = [
     "1:1",

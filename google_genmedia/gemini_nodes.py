@@ -23,11 +23,13 @@ from . import utils
 from .base import VertexAIClient
 from .constants import (
     AUDIO_MIME_TYPES,
+    GCP_PROJECT_ID_TOOLTIP,
+    GCP_REGION_TOOLTIP,
     GEMINI_USER_AGENT,
-    IMAGE_MIME_TYPES,
-    VIDEO_MIME_TYPES,
     GeminiModel, Gemini31Model,
+    IMAGE_MIME_TYPES,
     ThresholdOptions,
+    VIDEO_MIME_TYPES,
 )
 from .custom_exceptions import APIExecutionError, APIInputError, ConfigurationError
 from .logger import get_node_logger
@@ -165,14 +167,14 @@ class GeminiNode25(VertexAIClient):
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Gemini",
+                        "tooltip": GCP_PROJECT_ID_TOOLTIP,
                     },
                 ),
                 "gcp_region": (
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP region for Vertex AI API",
+                        "tooltip": GCP_REGION_TOOLTIP,
                     },
                 ),
             },
@@ -550,14 +552,14 @@ class GeminiNode31(VertexAIClient):
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Gemini",
+                        "tooltip": GCP_PROJECT_ID_TOOLTIP,
                     },
                 ),
                 "gcp_region": (
                     "STRING",
                     {
                         "default": "global",
-                        "tooltip": "GCP region for Vertex AI API",
+                        "tooltip": GCP_REGION_TOOLTIP,
                     },
                 ),
             },

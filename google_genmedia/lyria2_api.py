@@ -50,12 +50,21 @@ class Lyria2API(VertexAIClient):
         )
 
         try:
-            aiplatform.init(project=self.project_id, location=self.region)
+            # self.credentials is None unless the environment supplied a service
+            # account key, in which case both calls fall back to Application
+            # Default Credentials exactly as they did before.
+            aiplatform.init(
+                project=self.project_id,
+                location=self.region,
+                credentials=self.credentials,
+            )
             self.api_regional_endpoint = f"{self.region}-aiplatform.googleapis.com"
             self.client_options = {"api_endpoint": self.api_regional_endpoint}
             self.client_info = ClientInfo(user_agent=LYRIA2_USER_AGENT)
             self.client = aiplatform.gapic.PredictionServiceClient(
-                client_options=self.client_options, client_info=self.client_info
+                client_options=self.client_options,
+                client_info=self.client_info,
+                credentials=self.credentials,
             )
             self.model_endpoint = f"projects/{self.project_id}/locations/{self.region}/publishers/google/models/{LYRIA2_MODEL}"
             logger.info(

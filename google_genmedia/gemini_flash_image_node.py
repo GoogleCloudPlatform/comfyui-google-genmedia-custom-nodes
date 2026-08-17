@@ -20,6 +20,8 @@ import numpy as np
 import torch
 
 from .constants import (
+    GCP_PROJECT_ID_TOOLTIP,
+    GCP_REGION_TOOLTIP,
     GEMINI_25_FLASH_IMAGE_ASPECT_RATIO,
     GEMINI_31_FLASH_IMAGE_ASPECT_RATIO,
     GeminiFlashImageModel,
@@ -121,14 +123,14 @@ class Gemini25FlashImage:
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Gemini",
+                        "tooltip": GCP_PROJECT_ID_TOOLTIP,
                     },
                 ),
                 "gcp_region": (
                     "STRING",
                     {
                         "default": "global",
-                        "tooltip": "GCP region for Vertex AI API",
+                        "tooltip": GCP_REGION_TOOLTIP,
                     },
                 ),
             },
@@ -343,14 +345,14 @@ class Gemini31FlashImage:
                     "STRING",
                     {
                         "default": "",
-                        "tooltip": "GCP project id where Vertex AI API will query Gemini",
+                        "tooltip": GCP_PROJECT_ID_TOOLTIP,
                     },
                 ),
                 "gcp_region": (
                     "STRING",
                     {
                         "default": "global",
-                        "tooltip": "GCP region for Vertex AI API",
+                        "tooltip": GCP_REGION_TOOLTIP,
                     },
                 ),
             },

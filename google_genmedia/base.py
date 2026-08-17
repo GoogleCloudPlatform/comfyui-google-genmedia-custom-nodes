@@ -18,7 +18,12 @@ from typing import Optional
 
 from google import genai
 
-from .config import get_gcp_metadata
+from .config import (
+    CREDENTIALS_JSON_ENV_VAR,
+    LOCATION_ENV_VAR,
+    PROJECT_ENV_VAR,
+    resolve_vertex_ai_config,
+)
 from .custom_exceptions import ConfigurationError
 from .logger import get_node_logger
 
@@ -40,50 +45,47 @@ class VertexAIClient:
         Initializes the Vertex AI client.
 
         Args:
-            gcp_project_id: The GCP project ID. If provided, overrides metadata lookup.
-            gcp_region: The GCP region. If provided, overrides metadata lookup.
+            gcp_project_id: The GCP project ID. If provided, overrides every
+                other source.
+            gcp_region: The GCP region. If provided, overrides every other source.
             user_agent: The user agent string for the client.
 
         Raises:
-            ConfigurationError: If GCP Project or region cannot be determined.
+            ConfigurationError: If GCP Project or region cannot be determined,
+                or if configured credentials cannot be used.
         """
-        self.project_id = gcp_project_id or get_gcp_metadata("project/project-id")
-        if gcp_region:
-            self.region = gcp_region
-        else:
-            zone_metadata = get_gcp_metadata("instance/zone")
-            if zone_metadata:
-                try:
-                    zone_name = zone_metadata.split("/")[-1]
-                    self.region = "-".join(zone_name.split("-")[:-1])
-                except Exception as e:
-                    logger.error(
-                        f"Failed to parse region from zone metadata '{zone_metadata}': {e}"
-                    )
-                    self.region = None
-            else:
-                self.region = None
+        self.credentials, self.project_id, self.region = resolve_vertex_ai_config(
+            gcp_project_id, gcp_region
+        )
 
         if not self.project_id:
             raise ConfigurationError(
-                "GCP Project is required and could not be determined."
+                "GCP Project is required and could not be determined. Set it on the node, "
+                f"or set {CREDENTIALS_JSON_ENV_VAR} to a service account key containing it, "
+                f"or set {PROJECT_ENV_VAR}."
             )
         if not self.region:
             raise ConfigurationError(
-                "GCP region is required and could not be determined."
+                "GCP region is required and could not be determined. Set it on the node, "
+                f"or set {LOCATION_ENV_VAR}."
             )
 
         logger.info(f"Project is {self.project_id}, region is {self.region}")
 
         if user_agent:
             http_options = genai.types.HttpOptions(headers={"user-agent": user_agent})
+            client_kwargs = {
+                "vertexai": True,
+                "project": self.project_id,
+                "location": self.region,
+                "http_options": http_options,
+            }
+            # Only passed when the environment supplied credentials; otherwise the
+            # client discovers Application Default Credentials exactly as before.
+            if self.credentials:
+                client_kwargs["credentials"] = self.credentials
             try:
-                self.client = genai.Client(
-                    vertexai=True,
-                    project=self.project_id,
-                    location=self.region,
-                    http_options=http_options,
-                )
+                self.client = genai.Client(**client_kwargs)
             except Exception as e:
                 raise ConfigurationError(
                     f"Failed to initialize genai.Client for Vertex AI: {e}"
