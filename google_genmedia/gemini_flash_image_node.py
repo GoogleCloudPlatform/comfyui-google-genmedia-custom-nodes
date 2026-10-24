@@ -23,7 +23,6 @@ from .constants import (
     GEMINI_25_FLASH_IMAGE_ASPECT_RATIO,
     GEMINI_31_FLASH_IMAGE_ASPECT_RATIO,
     GeminiFlashImageModel,
-    GeminiProImageModel,
     ThresholdOptions,
 )
 from .custom_exceptions import APIExecutionError, APIInputError, ConfigurationError

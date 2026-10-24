@@ -22,7 +22,6 @@ import random
 import re
 import time
 import wave
-from io import BytesIO
 from typing import Any, List, Optional, Tuple
 
 import folder_paths
@@ -32,7 +31,6 @@ from google import genai
 from google.api_core import exceptions as api_core_exceptions
 from google.api_core.client_info import ClientInfo
 from google.cloud import storage
-from google.genai import errors as genai_errors
 from google.genai import types
 from google.genai.types import GenerateVideosConfig, Image
 from grpc import StatusCode
