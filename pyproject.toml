@@ -1,7 +1,7 @@
 [project]
 name = "comfyui-google-genmedia-custom-nodes"
 description = "A suite of experimental custom nodes that allows access to Google's 1P models like Veo, Nano Banana, Gemini, Virtual-try-on, Lyria"
-version = "8.0.0"
+version = "9.0.0"
 license = {file = "LICENSE"} 
 
 dependencies = ["google-api-core==2.43.0", "google-cloud-aiplatform==2.6.0", "google-cloud-storage==3.17.1", "google-genai==2.33.0", "opencv-python-headless==5.0.0.93"]
