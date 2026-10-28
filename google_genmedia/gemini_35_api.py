@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, List
+from typing import Optional
 
-from google import genai
 from google.genai import types
 
 from . import utils
@@ -24,7 +23,7 @@ from .constants import (
     Gemini35Model,
     ThresholdOptions,
 )
-from .custom_exceptions import APIExecutionError, APIInputError, ConfigurationError
+from .custom_exceptions import APIExecutionError, APIInputError
 from .logger import get_node_logger
 from .retry import api_error_retry
 
